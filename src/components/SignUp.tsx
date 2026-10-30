@@ -1,0 +1,210 @@
+import { useRef, useState, useContext } from "react";
+import UserContext from "../UserContext.tsx";
+import ApiCall from "../apiCalls";
+import { useNavigate } from "react-router";
+import AuthContext from "../AuthContext";
+import text from "../styles/text.module.css";
+import auth from "../styles/auth.module.css";
+import { Link } from "react-router";
+import Validate from "../components/Validate.ts";
+// import GuestLogin from "./GuestLogin.tsx";
+import { mutate } from "swr";
+// TODO: activate when using socketio
+// import { socket } from "../socket.ts";
+
+type Errors = {
+  email: string;
+  password: string;
+  passMatch: string | null;
+};
+
+const SignUp = () => {
+  const [passwordConfirm, setPasswordConfirm] = useState(null);
+  const password = useRef("");
+  const email = useRef("");
+  const passMatch = useRef("");
+  const { login } = useContext(AuthContext);
+
+  const { upsertUser } = useContext(UserContext);
+
+  const [errors, setErrors] = useState<Errors>({
+    email: "",
+    password: "",
+    passMatch: "",
+  });
+
+  const nav = useNavigate();
+
+  const validateForm = () => {
+    if (!validateEmail()) return false;
+
+    if (!validatePassword()) return false;
+
+    if (!passwordConfirm) {
+      setErrors(...errors, { passwordMatch: "Passwords do not Match!" });
+      return false;
+    }
+    setErrors({
+      email: "",
+      password: "",
+      passMatch: "",
+    });
+
+    return true;
+  };
+
+  const validateEmail = () => {
+    if (Validate.email(email.current)) {
+      setErrors({ ...errors, email: "" });
+      return true;
+    } else {
+      setErrors({ ...errors, email: "Invalid Email" });
+      return false;
+    }
+  };
+
+  const validatePassword = () => {
+    if (Validate.password(password.current)) {
+      setErrors({ ...errors, password: "" });
+      return true;
+    } else {
+      setErrors({ ...errors, password: "Password must be at min 8 chars" });
+      return false;
+    }
+  };
+
+  const changeEmail = (e) => {
+    email.current = e.target.value;
+  };
+
+  const changePassword = (e) => {
+    password.current = e.target.value;
+  };
+
+  const validatePassMatch = (e) => {
+    passMatch.current = e.target.value;
+
+    setPasswordConfirm(e.target.value);
+
+    if (passwordConfirm && passMatch.current == password.current) {
+      setErrors({ ...errors, passMatch: "" });
+    } else {
+      setErrors({ ...errors, passMatch: "Passwords do not match!" });
+    }
+  };
+
+  const attemptSignIn = async (formData: FormData) => {
+    if (!validateForm()) return;
+
+    const confirm = await ApiCall.signUp(formData);
+
+    if (confirm.data.errors) {
+      confirm.data.errors.forEach((err) => {
+        switch (err.path) {
+          case "email":
+            setErrors({ ...errors, email: err.msg });
+            break;
+
+          case "password":
+            setErrors({ ...errors, password: err.msg });
+            break;
+
+          case "passwordConfirm":
+            setErrors({ ...errors, passMatch: err.msg });
+            console.log(errors);
+            break;
+        }
+      });
+    }
+
+    try {
+      const response = await ApiCall.logIn(formData);
+
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+
+      upsertUser(response.data.user);
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("email", formData.get("email").toString());
+
+      // socket.timeout(2000).emit("user-added");
+      mutate(import.meta.env.VITE_BACKEND_URL + "users", true);
+
+      login(formData.get("messaging_app_email"));
+      nav("/");
+    } catch (e) {
+      console.log(`Error signing up: ${e}`);
+    }
+  };
+
+  return (
+    <div className={auth.background}>
+      <div className={auth.authCard}>
+        <h1 className={text.headingTitle}>Sign in</h1>
+        <p className={text.italicText}>to join the conversation</p>
+
+        <form action={attemptSignIn} className={auth.form}>
+          <div className={auth.inputContainer}>
+            {errors.email && <div className={auth.error}>{errors.email}</div>}
+            <input
+              className={auth.input}
+              type="text"
+              name="email"
+              id="email"
+              required
+              onBlur={validateEmail}
+              onChange={changeEmail}
+              placeholder="Email"
+            />
+          </div>
+
+          <div className={auth.inputContainer}>
+            {errors.password && (
+              <div className={auth.error}>{errors.password}</div>
+            )}
+            <input
+              className={auth.input}
+              type="password"
+              name="password"
+              id=""
+              required
+              onBlur={validatePassword}
+              onChange={changePassword}
+              placeholder="Password"
+            />
+          </div>
+
+          <div className={auth.inputContainer}>
+            {passwordConfirm && errors.passMatch && (
+              <div className={auth.error}>{errors.passMatch}</div>
+            )}
+            <input
+              className={auth.input}
+              type="password"
+              name="passwordConfirm"
+              placeholder="Confirm Password"
+              required
+              onChange={validatePassMatch}
+            />
+          </div>
+          <button className={auth.button} type="submit">
+            Submit
+          </button>
+        </form>
+        <div className={auth.altAuth}>
+          <p style={{ color: "white", fontSize: "1rem", fontStyle: "italic" }}>
+            Already have an account?
+          </p>
+          <Link to="/auth/log-in" style={{ color: "white" }}>
+            Log-In
+          </Link>
+        </div>
+        {/* <GuestLogin /> */}
+      </div>
+    </div>
+  );
+};
+
+export default SignUp;
