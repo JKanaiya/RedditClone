@@ -1,3 +1,17 @@
+// import "./App.css";
+import SignUp from "./components/SignUp";
+import Login from "./components/Login";
+import Auth from "./components/Auth.tsx";
+import Home from "./components/Home.tsx";
+import { useEffect, useState } from "react";
+import AuthContext from "./AuthContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import "./styles/reset.css";
+// import SelectionContext from "./SelectionContext.js";
+import ErrorPage from "./components/ErrorPage.js";
+import axios from "axios";
+import UserContext from "./UserContext.tsx";
+
 export type SubReddit = {
   id: number;
   name: string | undefined;
@@ -62,19 +76,6 @@ export type User = {
   spectator: boolean | undefined;
 };
 
-// import "./App.css";
-import SignUp from "./components/SignUp";
-import Login from "./components/Login";
-import Auth from "./components/Auth.tsx";
-import { useEffect, useState } from "react";
-import AuthContext from "./AuthContext";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
-import "./styles/reset.css";
-import SelectionContext from "./SelectionContext.js";
-import ErrorPage from "./components/ErrorPage.js";
-import axios from "axios";
-import UserContext from "./UserContext.tsx";
-
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>();
@@ -131,38 +132,34 @@ function App() {
 
   return (
     <AuthContext value={{ isLoggedIn, email, login, logout }}>
-      <SelectionContext value={{ selectedPost, setSelectedPost }}>
-        <UserContext value={{ upsertUser, user }}>
-          <Router>
-            <Routes>
+      {/* <SelectionContext value={{ selectedPost, setSelectedPost }}> */}
+      <UserContext value={{ upsertUser, user }}>
+        <Router>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                isLoggedIn ? <Home /> : <Navigate replace to={"/auth/log-in"} />
+              }
+              errorElement=<ErrorPage />
+            />
+            <Route path="auth" element=<Auth /> errorElement=<ErrorPage />>
               <Route
-                path="/"
-                element={
-                  isLoggedIn ? (
-                    <Home />
-                  ) : (
-                    <Navigate replace to={"/auth/log-in"} />
-                  )
-                }
+                path="sign-up"
+                element=<SignUp />
                 errorElement=<ErrorPage />
               />
-              <Route path="auth" element=<Auth /> errorElement=<ErrorPage />>
-                <Route
-                  path="sign-up"
-                  element=<SignUp />
-                  errorElement=<ErrorPage />
-                />
-                <Route
-                  path="log-in"
-                  element=<Login />
-                  errorElement=<ErrorPage />
-                />
-              </Route>
-              <Route path="error" element=<ErrorPage />></Route>
-            </Routes>
-          </Router>
-        </UserContext>
-      </SelectionContext>
+              <Route
+                path="log-in"
+                element=<Login />
+                errorElement=<ErrorPage />
+              />
+            </Route>
+            <Route path="error" element=<ErrorPage />></Route>
+          </Routes>
+        </Router>
+      </UserContext>
+      {/* </SelectionContext> */}
     </AuthContext>
   );
 }

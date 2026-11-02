@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
 import axios from "axios";
 import useSWR from "swr";
-import home from "../styles/home.module.css";
-import load from "../styles/load.module.css";
+// import home from "../styles/home.module.css";
+// import load from "../styles/load.module.css";
 import { useContext, useEffect, useState } from "react";
 import PostContext from "../PostContext.tsx";
 // import { socket } from "../socket.ts";
@@ -25,25 +25,25 @@ function Home() {
   };
 
   // TODO: find the correct function to be called on the base homepage, it will likely be getPosts
-  // const getChatrooms = async (url: string) => {
-  //   const chats = await axios.get(url, config).catch(function (err) {
-  //     console.log(err);
-  //     if (401 == err.response.status) {
-  //       console.error("Unauthorized");
-  //     }
-  //     return err.response;
-  //   });
-  //   console.log(chats);
-  //   return chats.data;
-  // };
+  const getPosts = async (url: string) => {
+    const posts = await axios.get(url, config).catch(function (err) {
+      console.log(err);
+      if (401 == err.response.status) {
+        console.error("Unauthorized");
+      }
+      return err.response;
+    });
+    console.log(posts);
+    return posts.data;
+  };
 
   // TODO: related to above
   const {
-    data: chatrooms,
+    data: posts,
     error,
     mutate,
     isLoading: loading,
-  } = useSWR(import.meta.env.VITE_BACKEND_URL + "chatrooms", getChatrooms);
+  } = useSWR(import.meta.env.VITE_BACKEND_URL + "posts", getPosts);
   // [use this for pagination]( https://swr.vercel.app/examples/infinite-loading )
 
   // useEffect(() => {
@@ -57,7 +57,7 @@ function Home() {
   if (error) {
     console.log(error);
   }
-  console.log(chatrooms);
+  console.log(posts);
 
   // TODO: change this to mutate when a new comment, post, or friend request accepted
   // socket.on("receive-message", () => {

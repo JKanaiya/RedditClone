@@ -1,5 +1,5 @@
 .background {
-  background-image: url("/assets/images/pexels-valentina-restrepo-rios-337634008-13981886.jpg");
+  /* background-image: url("/assets/images/pexels-valentina-restrepo-rios-337634008-13981886.jpg"); */
   background-size: cover;
   min-height: 100dvh;
   background-position: center;
@@ -38,7 +38,7 @@
 
 .button {
   composes: button from "../colors.module.css";
-  composes: buttonText from "./text.module.css";
+  /* composes: buttonText from "./text.module.css"; */
   composes: softWhite from "../colors.module.css";
   cursor: pointer;
   border-radius: 10px;

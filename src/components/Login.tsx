@@ -156,7 +156,7 @@ const Login = () => {
             Sign-Up
           </Link>
         </div>
-        <GuestLogin />
+        {/* <GuestLogin /> */}
       </div>
     </div>
   );

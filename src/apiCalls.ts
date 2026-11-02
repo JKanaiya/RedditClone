@@ -23,7 +23,6 @@ const ApiCall = (function () {
   );
 
   // WARN: kinda iffy about this scope
-  const email = localStorage.get("rcEmail");
 
   const signUp = async function (formData: FormData) {
     const result = await api
@@ -144,7 +143,6 @@ const ApiCall = (function () {
   const subscribe = async function (subName: string) {
     const result = await api
       .post("subscribe", {
-        email,
         name: subName,
       })
       .catch(function (err) {
