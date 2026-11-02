@@ -156,7 +156,7 @@ const Login = () => {
             Sign-Up
           </Link>
         </div>
-        {/* <GuestLogin /> */}
+        {/* <GuestLogin /> this is probably better done as one user acacount with a spectator tag, without the capability of craeting a post, or commenting on stuff */}
       </div>
     </div>
   );

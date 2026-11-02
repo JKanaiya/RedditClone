@@ -5,6 +5,11 @@ import useSWR from "swr";
 // import load from "../styles/load.module.css";
 import { useContext, useEffect, useState } from "react";
 import PostContext from "../PostContext.tsx";
+import type { SubReddit, User } from "../App.tsx";
+import SubRedditContext from "../SubredditContext.tsx";
+import Posts from "./Posts.tsx";
+import Users from "./Users.tsx";
+import PostFilter from "./PostFilter.tsx";
 // import { socket } from "../socket.ts";
 
 function Home() {
@@ -12,9 +17,21 @@ function Home() {
   // TODO: depends on how i will handle the user changing profile, atp, it might just be a different page. Namely the
   // typical user page, but with options to edit user data
   // const [profileOpen, setProfileOpen] = useState(false);
+  const [filterUser, setFilterUser] = useState<User | null>(null);
+  const [filterByFollowing, setFilterByFollowing] = useState<boolean>(false);
+
+  const updateFilterUser = (user: User) => {
+    setFilterUser(user);
+  };
 
   const nav = useNavigate();
   const token = localStorage.getItem("token");
+
+  const toggleFilterByFollowing = () => {
+    setFilterByFollowing(!filterByFollowing);
+  };
+
+  const { selectedSubreddit } = useContext(SubRedditContext);
 
   // const toggleProfileOpen = () => {
   //   setProfileOpen(!profileOpen);
@@ -25,25 +42,25 @@ function Home() {
   };
 
   // TODO: find the correct function to be called on the base homepage, it will likely be getPosts
-  const getPosts = async (url: string) => {
-    const posts = await axios.get(url, config).catch(function (err) {
+  const getSubreddits = async (url: string) => {
+    const subreddits = await axios.get(url, config).catch(function (err) {
       console.log(err);
       if (401 == err.response.status) {
         console.error("Unauthorized");
       }
       return err.response;
     });
-    console.log(posts);
-    return posts.data;
+    // console.log(subreddits);
+    return subreddits.data;
   };
 
   // TODO: related to above
   const {
-    data: posts,
+    data: subreddits,
     error,
     mutate,
     isLoading: loading,
-  } = useSWR(import.meta.env.VITE_BACKEND_URL + "posts", getPosts);
+  } = useSWR(import.meta.env.VITE_BACKEND_URL + "subreddits", getSubreddits);
   // [use this for pagination]( https://swr.vercel.app/examples/infinite-loading )
 
   // useEffect(() => {
@@ -57,7 +74,7 @@ function Home() {
   if (error) {
     console.log(error);
   }
-  console.log(posts);
+  // console.log(subreddits);
 
   // TODO: change this to mutate when a new comment, post, or friend request accepted
   // socket.on("receive-message", () => {
@@ -75,7 +92,23 @@ function Home() {
   //     </div>
   //   );
   if (error) nav("/error");
-  return <></>;
+  return (
+    <>
+      {subreddits &&
+        subreddits.map((subreddit: SubReddit) => (
+          <aside>
+            <li>{subreddit.name}</li>
+          </aside>
+        ))}
+      {/* {selectedSubreddit && <Posts subName={selectedSubreddit.name} />} */}
+      {/* {!selectedSubreddit && <Posts subName={null} />} */}
+      {filterByFollowing && (
+        <PostFilter filterByFollowing={true} subName={null} filterUser={null} />
+      )}
+
+      <Users updateFilterUser={updateFilterUser} />
+    </>
+  );
 }
 
 export default Home;

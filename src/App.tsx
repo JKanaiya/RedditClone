@@ -11,6 +11,8 @@ import "./styles/reset.css";
 import ErrorPage from "./components/ErrorPage.js";
 import axios from "axios";
 import UserContext from "./UserContext.tsx";
+import SubredditContext from "./SubredditContext.tsx";
+import PostContext from "./PostContext.tsx";
 
 export type SubReddit = {
   id: number;
@@ -78,7 +80,10 @@ export type User = {
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<Post | null>();
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [selectedSubreddit, setSelectedSubreddit] = useState<SubReddit | null>(
+    null,
+  );
   const [user, setUser] = useState<User | null>(null);
 
   const [email, setEmail] = useState<string | null>(null);
@@ -132,34 +137,40 @@ function App() {
 
   return (
     <AuthContext value={{ isLoggedIn, email, login, logout }}>
-      {/* <SelectionContext value={{ selectedPost, setSelectedPost }}> */}
-      <UserContext value={{ upsertUser, user }}>
-        <Router>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isLoggedIn ? <Home /> : <Navigate replace to={"/auth/log-in"} />
-              }
-              errorElement=<ErrorPage />
-            />
-            <Route path="auth" element=<Auth /> errorElement=<ErrorPage />>
-              <Route
-                path="sign-up"
-                element=<SignUp />
-                errorElement=<ErrorPage />
-              />
-              <Route
-                path="log-in"
-                element=<Login />
-                errorElement=<ErrorPage />
-              />
-            </Route>
-            <Route path="error" element=<ErrorPage />></Route>
-          </Routes>
-        </Router>
-      </UserContext>
-      {/* </SelectionContext> */}
+      <PostContext value={{ selectedPost, setSelectedPost }}>
+        <SubredditContext value={{ selectedSubreddit, setSelectedSubreddit }}>
+          <UserContext value={{ upsertUser, user }}>
+            <Router>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    isLoggedIn ? (
+                      <Home />
+                    ) : (
+                      <Navigate replace to={"/auth/log-in"} />
+                    )
+                  }
+                  errorElement=<ErrorPage />
+                />
+                <Route path="auth" element=<Auth /> errorElement=<ErrorPage />>
+                  <Route
+                    path="sign-up"
+                    element=<SignUp />
+                    errorElement=<ErrorPage />
+                  />
+                  <Route
+                    path="log-in"
+                    element=<Login />
+                    errorElement=<ErrorPage />
+                  />
+                </Route>
+                <Route path="error" element=<ErrorPage />></Route>
+              </Routes>
+            </Router>
+          </UserContext>
+        </SubredditContext>
+      </PostContext>
     </AuthContext>
   );
 }

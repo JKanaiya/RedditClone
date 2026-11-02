@@ -2,11 +2,13 @@ import { createContext } from "react";
 import type { Post } from "./App";
 
 export type PostContext = {
-  post: Post | null;
+  selectedPost: Post | null;
+  setSelectedPost: (post: Post) => void;
 };
 
 const PostContext = createContext<PostContext>({
-  post: null,
+  selectedPost: null,
+  setSelectedPost: (post: Post) => {},
 });
 
 export default PostContext;
