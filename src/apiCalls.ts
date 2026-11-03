@@ -245,7 +245,6 @@ const ApiCall = (function () {
       }
       return err.response;
     });
-    console.log(posts);
     return posts.data;
   };
 

@@ -10,15 +10,25 @@ import SubRedditContext from "../SubredditContext.tsx";
 import Posts from "./Posts.tsx";
 import Users from "./Users.tsx";
 import PostFilter from "./PostFilter.tsx";
+import Profile from "./Profile.tsx";
+import Nav from "./Nav.tsx";
+import PostComponent from "./Post.tsx";
 // import { socket } from "../socket.ts";
 
 function Home() {
   const { selectedPost } = useContext(PostContext);
+  const { setSelectedSubreddit, selectedSubreddit } =
+    useContext(SubRedditContext);
   // TODO: depends on how i will handle the user changing profile, atp, it might just be a different page. Namely the
   // typical user page, but with options to edit user data
-  // const [profileOpen, setProfileOpen] = useState(false);
-  const [filterUser, setFilterUser] = useState<User | null>(null);
-  const [filterByFollowing, setFilterByFollowing] = useState<boolean>(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [filterByFollowing, setFilterByFollowing] = useState(false);
+  const [filter, setFilter] = useState<string | null>(null);
+
+  const searchPosts = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter(e.currentTarget.value);
+  };
 
   const updateFilterUser = (user: User) => {
     setFilterUser(user);
@@ -30,8 +40,6 @@ function Home() {
   const toggleFilterByFollowing = () => {
     setFilterByFollowing(!filterByFollowing);
   };
-
-  const { selectedSubreddit } = useContext(SubRedditContext);
 
   // const toggleProfileOpen = () => {
   //   setProfileOpen(!profileOpen);
@@ -94,19 +102,41 @@ function Home() {
   if (error) nav("/error");
   return (
     <>
+      <Nav searchPosts={searchPosts} />
+      {selectedSubreddit && (
+        <button onClick={() => setSelectedSubreddit(null)}>
+          back to all subs
+        </button>
+      )}
+      {selectedUser && (
+        <button onClick={() => setSelectedUser(null)}> back to all </button>
+      )}
       {subreddits &&
         subreddits.map((subreddit: SubReddit) => (
           <aside>
-            <li>{subreddit.name}</li>
+            <li onClick={() => setSelectedSubreddit(subreddit)}>
+              {subreddit.name}
+            </li>
           </aside>
         ))}
-      {/* {selectedSubreddit && <Posts subName={selectedSubreddit.name} />} */}
-      {/* {!selectedSubreddit && <Posts subName={null} />} */}
-      {filterByFollowing && (
-        <PostFilter filterByFollowing={true} subName={null} filterUser={null} />
+      {selectedPost ? (
+        <PostComponent post={selectedPost} />
+      ) : selectedUser ? (
+        <Profile user={selectedUser} />
+      ) : selectedSubreddit ? (
+        <Posts
+          subId={selectedSubreddit.id}
+          filterByFollowing={filterByFollowing}
+          filter={filter}
+        />
+      ) : (
+        <Posts
+          subId={undefined}
+          filterByFollowing={filterByFollowing}
+          filter={filter}
+        />
       )}
-
-      <Users updateFilterUser={updateFilterUser} />
+      <Users setSelectedUser={setSelectedUser} />
     </>
   );
 }

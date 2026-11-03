@@ -5,7 +5,7 @@ import type { User } from "../App";
 import { useContext } from "react";
 import UserContext from "../UserContext";
 
-function Users({ updateFilterUser }: { updateFilterUser: (user: User) => {} }) {
+function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
   const nav = useNavigate();
   const { user } = useContext(UserContext);
   const {
@@ -20,7 +20,6 @@ function Users({ updateFilterUser }: { updateFilterUser: (user: User) => {} }) {
 
   const follUsers = users.filter((following: User) => {
     // NOTE: this does not show anything since the logged in user has not followed anyone yet
-    console.log(user?.followers);
     for (let foll in user?.following) {
       console.log(foll);
       if (following.id == foll.id) {
@@ -38,12 +37,12 @@ function Users({ updateFilterUser }: { updateFilterUser: (user: User) => {} }) {
         users
           .filter((foll: User) => foll.id == user?.following.id)
           .map((user: User) => (
-            <li onClick={() => updateFilterUser(user)}>{user.name}</li>
+            <li onClick={() => setSelectedUser(user)}>{user.name}</li>
           ))}
       <h4>Users</h4>
       {users &&
         users.map((user: User) => (
-          <li onClick={() => updateFilterUser(user)}>{user.name}</li>
+          <li onClick={() => setSelectedUser(user)}>{user.name}</li>
         ))}
     </aside>
   );

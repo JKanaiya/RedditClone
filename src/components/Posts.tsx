@@ -1,50 +1,91 @@
 import type { Post } from "../App.tsx";
+import { useContext } from "react";
+import UserContext from "../UserContext.tsx";
 import { useNavigate } from "react-router";
-import axios from "axios";
 import useSWR from "swr";
 import PostComponent from "./Post.tsx";
+import ApiCall from "../apiCalls.ts";
 
-function Posts({ subName }: { subName: string | null }) {
+function Posts({
+  subId,
+  filterByFollowing,
+  filter,
+}: {
+  subId: number | undefined;
+  filterByFollowing: boolean;
+  filter: string;
+}) {
   const nav = useNavigate();
-  const token = localStorage.getItem("token");
-
-  const config = {
-    headers: { Authorization: `Bearer ${token}` },
-  };
-
-  const getPosts = async (url: string) => {
-    const posts = await axios.get(url, config).catch(function (err) {
-      console.log(err);
-      if (401 == err.response.status) {
-        console.error("Unauthorized");
-      }
-      return err.response;
-    });
-    console.log(posts);
-    return posts.data;
-  };
+  const { user } = useContext(UserContext);
 
   const {
     data: posts,
     error,
     mutate,
     isLoading: loading,
-  } = useSWR(import.meta.env.VITE_BACKEND_URL + "posts", getPosts);
+  } = useSWR(import.meta.env.VITE_BACKEND_URL, ApiCall.getPosts);
 
   if (loading) return <p>loading...</p>;
   if (error) nav("/error");
 
-  return (
-    <div>
-      {subName
-        ? posts
-            .filter((post: Post) => post.subReddit.name == subName)
-            .map((post: Post) => <PostComponent post={post} key={post.id} />)
-        : posts.map((post: Post) => (
-            <PostComponent post={post} key={post.id} />
-          ))}
-    </div>
-  );
+  if (subId != undefined) {
+    return (
+      <div>
+        {filter
+          ? posts
+              .filter((post: Post) => post.subRedditId == subId)
+              .filter(
+                (post: Post) =>
+                  post.text.toLowerCase().includes(filter.toLowerCase()) ||
+                  post.title.toLowerCase().includes(filter.toLowerCase()),
+              )
+              .map((post: Post) => <PostComponent post={post} key={post.id} />)
+          : posts
+              .filter((post: Post) => post.subRedditId == subId)
+              .map((post: Post) => <PostComponent post={post} key={post.id} />)}
+      </div>
+    );
+  } else if (filterByFollowing) {
+    const follPosts = posts.filter((post: Post) => {
+      for (let foll in user?.followers) {
+        console.log(foll);
+        if (post.user.id == foll.id) {
+          return true;
+        } else return false;
+      }
+    });
+    return (
+      <div>
+        {filter
+          ? follPosts
+              .filter(
+                (post: Post) =>
+                  post.text.toLowerCase().includes(filter.toLowerCase()) ||
+                  post.title.toLowerCase().includes(filter.toLowerCase()),
+              )
+              .map((post: Post) => <PostComponent post={post} key={post.id} />)
+          : follPosts.map((post: Post) => (
+              <PostComponent post={post} key={post.id} />
+            ))}
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        {filter
+          ? posts
+              .filter(
+                (post: Post) =>
+                  post.text.toLowerCase().includes(filter.toLowerCase()) ||
+                  post.title.toLowerCase().includes(filter.toLowerCase()),
+              )
+              .map((post: Post) => <PostComponent post={post} key={post.id} />)
+          : posts.map((post: Post) => (
+              <PostComponent post={post} key={post.id} />
+            ))}
+      </div>
+    );
+  }
 }
 
 export default Posts;

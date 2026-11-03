@@ -35,7 +35,7 @@ export type Post = {
   text: string;
   votes: Vote[] | [];
   comments: Comment[] | [];
-  subReddit: SubReddit;
+  subRedditId: number;
   user: User;
 };
 export type Vote = {
@@ -88,6 +88,10 @@ function App() {
 
   const [email, setEmail] = useState<string | null>(null);
 
+  const toggleSelectedPost = (post: Post | null) => {
+    setSelectedPost(post);
+  };
+
   useEffect(() => {
     const email = localStorage.getItem("rcEmail");
     // const specEmail = localStorage.getItem("messaging_app_spec_email");
@@ -137,7 +141,9 @@ function App() {
 
   return (
     <AuthContext value={{ isLoggedIn, email, login, logout }}>
-      <PostContext value={{ selectedPost, setSelectedPost }}>
+      <PostContext
+        value={{ selectedPost, setSelectedPost, toggleSelectedPost }}
+      >
         <SubredditContext value={{ selectedSubreddit, setSelectedSubreddit }}>
           <UserContext value={{ upsertUser, user }}>
             <Router>
