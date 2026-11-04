@@ -12,10 +12,14 @@ function Nav({
 
   const navLogIn = () => nav("/auth/log-in");
   const navSignUp = () => nav("/auth/sign-up");
+  const navSignOut = () => {
+    logout();
+    nav("/auth/log-in");
+  };
 
   return (
     <nav>
-      <h3>RedditClone</h3>
+      {window.innerWidth >= 868 ? <h3>RedditClone</h3> : <h3> r/Clone </h3>}
       <input
         type="text"
         name="search"
@@ -25,8 +29,14 @@ function Nav({
         placeholder="Search post title and text"
       />
       {/* <RiSearch2Line className={icons.search} /> */}
-      <button onClick={() => navLogIn()}>Log In</button>
-      <button onClick={() => navSignUp()}>Sign Up</button>
+      {isLoggedIn ? (
+        <button onClick={() => navSignOut()}>Sign Out</button>
+      ) : (
+        <>
+          <button onClick={() => navLogIn()}>Log In</button>
+          <button onClick={() => navSignUp()}>Sign Up</button>
+        </>
+      )}
     </nav>
   );
 }

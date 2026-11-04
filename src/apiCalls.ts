@@ -230,6 +230,23 @@ const ApiCall = (function () {
     return result;
   };
 
+  const deleteComment = async function (commentId: number) {
+    const result = await api.delete("comment", {
+      params: {
+        commentId,
+      },
+    });
+    return result;
+  };
+
+  const updateComment = async function (commentId: number, text: string) {
+    const result = await api.post("delete-comment", {
+      commentId,
+      text,
+    });
+    return result;
+  };
+
   const getUserPosts = async function () {
     const result = await api.get("user-posts").catch(function (err) {
       return err.response;
@@ -300,6 +317,8 @@ const ApiCall = (function () {
     voteOnPost,
     commentOnComment,
     commentOnPost,
+    deleteComment,
+    updateComment,
     // setProfileImage,
     // spectatorSignUp,
     // spectatorLogin,
