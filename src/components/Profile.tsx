@@ -11,15 +11,15 @@ function Profile({ user }: { user: User }) {
       <h4>Following</h4>
       {user.following.map((u) => (
         <li>
-          {u.name}
-          {u.email}
+          <p>Name: {u.name}</p>
+          <p>Email: {u.email}</p>
         </li>
       ))}
       <h4>Followers</h4>
       {user.followers.map((u) => (
         <li>
-          {u.name}
-          {u.email}
+          <p>Name: {u.name}</p>
+          <p>Email: {u.email}</p>
         </li>
       ))}
     </div>

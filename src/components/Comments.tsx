@@ -1,12 +1,56 @@
 import useSWR from "swr";
-function Comments() {
+import axios from "axios";
+import { useNavigate } from "react-router";
+import type { Comment as CommentType } from "../App";
+import Comment from "./Comment";
+
+function Comments({
+  postId,
+  toggleSelectedComment,
+}: {
+  postId: number;
+  toggleSelectedComment: (comment: CommentType | null) => void;
+}) {
+  const token = localStorage.getItem("token");
+  const nav = useNavigate();
+  const getComments = async (url: string) => {
+    const comments = await axios
+      .get(url, {
+        params: { postId: postId },
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .catch(function (err) {
+        console.log(err);
+        if (401 == err.response.status) {
+          console.error("Unauthorized");
+        }
+        return err.response;
+      });
+    return comments.data;
+  };
+
   const {
-    data: subreddits,
+    data: comments,
     error,
     mutate,
     isLoading: loading,
-  } = useSWR(import.meta.env.VITE_BACKEND_URL + "subreddits", getSubreddits);
-  return <div></div>;
+  } = useSWR(import.meta.env.VITE_BACKEND_URL + "comments", getComments);
+
+  if (loading) return <p>loading...</p>;
+  if (error) nav("/error");
+
+  return (
+    <div>
+      {comments &&
+        comments.map((comment: CommentType) => (
+          <Comment
+            comment={comment}
+            offset={25}
+            toggleSelectedComment={toggleSelectedComment}
+          />
+        ))}
+    </div>
+  );
 }
 
 export default Comments;

@@ -265,6 +265,19 @@ const ApiCall = (function () {
     return posts.data;
   };
 
+  const getComments = async (postId: number) => {
+    const comments = await api
+      .get("comments", { params: { postId } })
+      .catch(function (err) {
+        console.log(err);
+        if (401 == err.response.status) {
+          console.error("Unauthorized");
+        }
+        return err.response;
+      });
+    return comments.data;
+  };
+
   const acceptFollowRequest = async function (follReqId: number) {
     const result = await api
       .get("accept-follow-request", { params: { follReqId } })
@@ -324,6 +337,7 @@ const ApiCall = (function () {
     // spectatorLogin,
     getUsers,
     getPosts,
+    getComments,
     updateUserName,
   };
 })();

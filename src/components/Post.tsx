@@ -2,9 +2,9 @@ import { useContext, useState } from "react";
 import type { Comment as CommentType, Post } from "../App";
 import useSWR from "swr";
 import ApiCall from "../apiCalls.ts";
-import Comment from "./Comment.tsx";
 import PostContext from "../PostContext.tsx";
 import AuthContext from "../AuthContext.tsx";
+import Comments from "./Comments.tsx";
 
 function PostComponent({ post }: { post: Post }) {
   const voteValues = post.votes.map((vote) => (vote ? 1 : -1));
@@ -12,10 +12,12 @@ function PostComponent({ post }: { post: Post }) {
   const { selectedPost, setSelectedPost, toggleSelectedPost } =
     useContext(PostContext);
 
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
+  const [selectedComment, setSelectedComment] = useState<CommentType | null>(
+    null,
+  );
 
-  // const toggleSelectedComment = (comment: CommentType) =>
-  //   setSelectedComment(comment);
+  const toggleSelectedComment = (comment: CommentType | null) =>
+    setSelectedComment(comment);
   //
   // const updateSelectedComment = (editedText: string) => {
   //   setSelectedComment({ ...selectedComment, text: editedText });
@@ -42,58 +44,58 @@ function PostComponent({ post }: { post: Post }) {
   const addComment = async (formData: FormData) => {
     if (selectedComment) {
       try {
-        const response = await ApiCall.createComment({
-          comment: formData.get("comment"),
-          postId: null,
-          commentId: selectedComment.id,
-          email,
-        });
+        const response = await ApiCall.commentOnComment(
+          post.id,
+          formData.get("text")!.toString(),
+        );
 
-        if (!response.status == 200) {
+        if (response.status != 200) {
           throw new Error(`HTTP Error! Status: ${response.status}`);
         }
 
-        updateComments(selectedPost, {
-          id: response.data.id,
-          text: formData.get("comment"),
-          postId: selectedPost.id,
-          subComments: [""],
-          selectedCommentId: selectedComment.id,
-          User: { email },
-        });
+        // NOTE: this functionality would be replaced with socketio
+        // updateComments(selectedPost, {
+        //   id: response.data.id,
+        //   text: formData.get("comment"),
+        //   postId: selectedPost.id,
+        //   subComments: [""],
+        //   selectedCommentId: selectedComment.id,
+        //   User: { email },
+        // });
 
-        successNotify("Successfully added comment!");
+        // successNotify("Successfully added comment!");
       } catch (e) {
-        errorNotify("Failed to add comment!");
+        // errorNotify("Failed to add comment!");
         console.log(`Error adding comment: ${e}`);
       }
     } else {
       try {
-        const response = await ApiCall.createComment({
-          comment: formData.get("comment"),
-          postId: selectedPost.id,
-          email,
-        });
+        const response = await ApiCall.commentOnPost(
+          post.id,
+          formData.get("text")!.toString(),
+        );
 
-        if (!response.status == 200) {
+        if (response.status != 200) {
           throw new Error(`HTTP Error! Status: ${response.status}`);
         }
 
-        updateComments(selectedPost, {
-          id: response.data.id,
-          text: formData.get("comment"),
-          subComments: [""],
-          postId: selectedPost.id,
-          User: { email },
-        });
+        // NOTE: this functionality would be replaced with socketio
+        // updateComments(selectedPost, {
+        //   id: response.data.id,
+        //   text: formData.get("comment"),
+        //   subComments: [""],
+        //   postId: selectedPost.id,
+        //   User: { email },
+        // });
 
-        successNotify("Successfully added comment!");
+        // successNotify("Successfully added comment!");
       } catch (e) {
-        errorNotify("Failed to add comment!");
+        // errorNotify("Failed to add comment!");
         console.log(`Error adding comment: ${e}`);
       }
     }
   };
+  console.log(selectedPost);
 
   return (
     <div>
@@ -106,13 +108,14 @@ function PostComponent({ post }: { post: Post }) {
         {post.text}
         {votes}
         {/* {might need to kick selectedPost in the cases where post is being showed outside of a Posts component} */}
-        {selectedPost &&
-          post.comments &&
-          post.comments.map((comment) => (
-            <Comment comment={comment} selectedPost={selectedPost} />
-          ))}
+        {selectedPost && post.comments && (
+          <Comments
+            postId={post.id}
+            toggleSelectedComment={toggleSelectedComment}
+          />
+        )}
       </div>
-      {isLoggedIn ? (
+      {!isLoggedIn ? (
         // <p className={text.italicText}>to join the conversation</p>
 
         <>
@@ -121,17 +124,14 @@ function PostComponent({ post }: { post: Post }) {
         </>
       ) : (
         selectedPost && (
-          <form action={addComment} className={home.addComment}>
+          <form action={addComment}>
             <input
               type="text"
               name="comment"
-              className={home.input}
               id=""
               placeholder="Share your thoughts"
             />
-            <button type="submit">
-              <IoIosAddCircleOutline />
-            </button>
+            <button type="submit">{/* <IoIosAddCircleOutline /> */}</button>
           </form>
         )
       )}
