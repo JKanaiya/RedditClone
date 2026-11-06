@@ -1,11 +1,15 @@
 import { useContext, useState } from "react";
+import { RxHamburgerMenu } from "react-icons/rx";
 import { useNavigate } from "react-router";
 import AuthContext from "../AuthContext";
+import navbar from "../styles/nav.module.css";
 
 function Nav({
   searchPosts,
+  toggleSideBar,
 }: {
   searchPosts: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  toggleSideBar: () => void;
 }) {
   const { logout, isLoggedIn, login, user } = useContext(AuthContext);
   const nav = useNavigate();
@@ -18,24 +22,47 @@ function Nav({
   };
 
   return (
-    <nav>
-      {window.innerWidth >= 868 ? <h3>RedditClone</h3> : <h3> r/Clone </h3>}
-      <input
-        type="text"
-        name="search"
-        id=""
-        // className={home.input}
-        onChange={searchPosts}
-        placeholder="Search post title and text"
-      />
-      {/* <RiSearch2Line className={icons.search} /> */}
-      {isLoggedIn ? (
-        <button onClick={() => navSignOut()}>Sign Out</button>
-      ) : (
-        <>
-          <button onClick={() => navLogIn()}>Log In</button>
-          <button onClick={() => navSignUp()}>Sign Up</button>
-        </>
+    <nav className={navbar.container}>
+      <section className={navbar.bar}>
+        {window.innerWidth < 868 && (
+          <RxHamburgerMenu onClick={() => toggleSideBar()} />
+        )}
+        {window.innerWidth >= 868 ? <h3>RedditClone</h3> : <h3> r/Clone </h3>}
+        {window.innerWidth >= 868 && (
+          <input
+            type="text"
+            name="search"
+            id=""
+            className={navbar.input}
+            onChange={searchPosts}
+            placeholder="Search post title and text"
+          />
+        )}
+        {/* <RiSearch2Line className={icons.search} /> */}
+        {isLoggedIn ? (
+          <button className={navbar.authButton} onClick={() => navSignOut()}>
+            Sign Out
+          </button>
+        ) : (
+          <>
+            <button className={navbar.authButton} onClick={() => navLogIn()}>
+              Log In
+            </button>
+            <button className={navbar.authButton} onClick={() => navSignUp()}>
+              Sign Up
+            </button>
+          </>
+        )}
+      </section>
+      {window.innerWidth < 868 && (
+        <input
+          type="text"
+          name="search"
+          id=""
+          className={navbar.input}
+          onChange={searchPosts}
+          placeholder="Search post title and text"
+        />
       )}
     </nav>
   );

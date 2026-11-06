@@ -1,0 +1,9 @@
+.column {
+  border: 1px solid black;
+  padding: 1%;
+  min-width: 15dvw;
+}
+
+.column li {
+  text-wrap: wrap;
+}

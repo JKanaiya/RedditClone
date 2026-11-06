@@ -2,6 +2,7 @@ import ApiCall from "../apiCalls";
 import { useNavigate } from "react-router";
 import useSWR from "swr";
 import type { User } from "../App";
+import usersAside from "../styles/users.module.css";
 import { useContext } from "react";
 import UserContext from "../UserContext";
 
@@ -31,18 +32,22 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
   console.log(follUsers);
 
   return (
-    <aside>
+    <aside className={usersAside.column}>
       <h4>Following</h4>
       {users &&
         users
           .filter((foll: User) => foll.id == user?.following.id)
           .map((user: User) => (
-            <li onClick={() => setSelectedUser(user)}>{user.name}</li>
+            <li onClick={() => setSelectedUser(user)}>
+              <p>{user.name}</p>
+            </li>
           ))}
       <h4>Users</h4>
       {users &&
         users.map((user: User) => (
-          <li onClick={() => setSelectedUser(user)}>{user.name}</li>
+          <li onClick={() => setSelectedUser(user)}>
+            <p>{user.name}</p>
+          </li>
         ))}
     </aside>
   );

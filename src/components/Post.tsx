@@ -1,10 +1,13 @@
 import { useContext, useState } from "react";
+import { IoClose } from "react-icons/io5";
+import { IoIosAddCircleOutline } from "react-icons/io";
 import type { Comment as CommentType, Post } from "../App";
 import useSWR from "swr";
 import ApiCall from "../apiCalls.ts";
 import PostContext from "../PostContext.tsx";
 import AuthContext from "../AuthContext.tsx";
 import Comments from "./Comments.tsx";
+import Votes from "./Votes.tsx";
 
 function PostComponent({ post }: { post: Post }) {
   const voteValues = post.votes.map((vote) => (vote ? 1 : -1));
@@ -45,8 +48,8 @@ function PostComponent({ post }: { post: Post }) {
     if (selectedComment) {
       try {
         const response = await ApiCall.commentOnComment(
-          post.id,
-          formData.get("text")!.toString(),
+          selectedComment.id,
+          formData.get("comment")!.toString(),
         );
 
         if (response.status != 200) {
@@ -72,7 +75,7 @@ function PostComponent({ post }: { post: Post }) {
       try {
         const response = await ApiCall.commentOnPost(
           post.id,
-          formData.get("text")!.toString(),
+          formData.get("comment")!.toString(),
         );
 
         if (response.status != 200) {
@@ -95,18 +98,15 @@ function PostComponent({ post }: { post: Post }) {
       }
     }
   };
-  console.log(selectedPost);
 
   return (
     <div>
-      {selectedPost && (
-        <button onClick={() => toggleSelectedPost(null)}>back to posts</button>
-      )}
+      {selectedPost && <IoClose onClick={() => toggleSelectedPost(null)} />}
       <div onClick={() => setSelectedPost(post)}>
         <h4>{post.title}</h4>
         {post.text}
         {post.text}
-        {votes}
+        <Votes post={post} comment={null} />
         {/* {might need to kick selectedPost in the cases where post is being showed outside of a Posts component} */}
         {selectedPost && post.comments && (
           <Comments
@@ -131,7 +131,9 @@ function PostComponent({ post }: { post: Post }) {
               id=""
               placeholder="Share your thoughts"
             />
-            <button type="submit">{/* <IoIosAddCircleOutline /> */}</button>
+            <button type="submit">
+              <IoIosAddCircleOutline />
+            </button>
           </form>
         )
       )}

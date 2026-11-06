@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { IoClose } from "react-icons/io5";
+import home from "../styles/home.module.css";
 import useSWR from "swr";
 // import home from "../styles/home.module.css";
 // import load from "../styles/load.module.css";
@@ -22,6 +25,7 @@ function Home() {
   // TODO: depends on how i will handle the user changing profile, atp, it might just be a different page. Namely the
   // typical user page, but with options to edit user data
   const [profileOpen, setProfileOpen] = useState(false);
+  const [sideBarOpen, setSideBarOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [filterByFollowing, setFilterByFollowing] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
@@ -30,8 +34,12 @@ function Home() {
     setFilter(e.currentTarget.value);
   };
 
-  const updateFilterUser = (user: User) => {
-    setFilterUser(user);
+  const toggleSideBar = () => {
+    setSideBarOpen(!sideBarOpen);
+  };
+
+  const toggleSelectedUser = (user: User | null) => {
+    setSelectedUser(user);
   };
 
   const nav = useNavigate();
@@ -101,43 +109,63 @@ function Home() {
   //   );
   if (error) nav("/error");
   return (
-    <>
-      <Nav searchPosts={searchPosts} />
-      {selectedSubreddit && (
-        <button onClick={() => setSelectedSubreddit(null)}>
-          back to all subs
-        </button>
-      )}
-      {selectedUser && (
-        <button onClick={() => setSelectedUser(null)}> back to all </button>
-      )}
-      {subreddits &&
-        subreddits.map((subreddit: SubReddit) => (
-          <aside>
-            <li onClick={() => setSelectedSubreddit(subreddit)}>
-              {subreddit.name}
-            </li>
+    <div className={home.page}>
+      <Nav searchPosts={searchPosts} toggleSideBar={toggleSideBar} />
+      <section className={home.container}>
+        {window.innerWidth < 800 && sideBarOpen && (
+          <aside className={home.sidebar}>
+            <IoClose
+              onClick={() => toggleSideBar()}
+              className={home.sidebarClose}
+            />
+            {subreddits &&
+              subreddits.map((subreddit: SubReddit) => (
+                <li onClick={() => setSelectedSubreddit(subreddit)}>
+                  <p>{subreddit.name}</p>
+                </li>
+              ))}
+            <Users setSelectedUser={setSelectedUser} />
           </aside>
-        ))}
-      {selectedPost ? (
-        <PostComponent post={selectedPost} />
-      ) : selectedUser ? (
-        <Profile user={selectedUser} />
-      ) : selectedSubreddit ? (
-        <Posts
-          subId={selectedSubreddit.id}
-          filterByFollowing={filterByFollowing}
-          filter={filter}
-        />
-      ) : (
-        <Posts
-          subId={undefined}
-          filterByFollowing={filterByFollowing}
-          filter={filter}
-        />
-      )}
-      <Users setSelectedUser={setSelectedUser} />
-    </>
+        )}
+
+        {window.innerWidth >= 800 && !selectedUser && (
+          <aside className={home.subreddits}>
+            {subreddits &&
+              subreddits.map((subreddit: SubReddit) => (
+                <li onClick={() => setSelectedSubreddit(subreddit)}>
+                  {subreddit.name}
+                </li>
+              ))}
+          </aside>
+        )}
+        {selectedPost ? (
+          <PostComponent post={selectedPost} />
+        ) : selectedUser ? (
+          <Profile
+            user={selectedUser}
+            toggleSelectedUser={toggleSelectedUser}
+          />
+        ) : selectedSubreddit ? (
+          <Posts
+            subId={selectedSubreddit.id}
+            subName={selectedSubreddit.name}
+            filterByFollowing={filterByFollowing}
+            filter={filter}
+          />
+        ) : (
+          <Posts
+            subId={undefined}
+            subName={undefined}
+            filterByFollowing={filterByFollowing}
+            filter={filter}
+          />
+        )}
+        {/* NOTE: this and the above aside would render in a sidebar if the screenwidth is less than 800 */}
+        {window.innerWidth >= 800 && !selectedUser && (
+          <Users setSelectedUser={setSelectedUser} />
+        )}
+      </section>
+    </div>
   );
 }
 

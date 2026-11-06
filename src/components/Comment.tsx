@@ -12,6 +12,7 @@ import { useContext, useState } from "react";
 // import { FiEdit2 } from "react-icons/fi";
 import AuthContext from "../AuthContext";
 import ApiCall from "../apiCalls";
+import Votes from "./Votes";
 
 function Comment({
   comment,
@@ -28,13 +29,14 @@ function Comment({
       onClick={() => toggleSelectedComment(comment)}
     >
       {comment.text}
-      {comment.userId}
+      <Votes post={null} comment={comment} />
       {comment.subComments &&
         comment.subComments.map((comment: CommentType) => (
           <Comment
             comment={comment}
             offset={offset + 2}
             toggleSelectedComment={toggleSelectedComment}
+            key={comment.id}
           />
         ))}
     </div>

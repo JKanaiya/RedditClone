@@ -1,0 +1,38 @@
+.bar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.container {
+  display: flex;
+  row-gap: 10px;
+  padding: 1%;
+  border: 1px solid black;
+  flex-direction: column;
+}
+
+.input {
+  border-radius: 5px;
+  border: none;
+  background-color: gray;
+  padding-left: 3%;
+  color: white;
+}
+
+.button .authButton {
+  border-radius: 15px;
+  padding: 1%;
+}
+
+@media screen and (max-width: 800px) {
+  .input {
+    width: 80%;
+    min-height: 30px;
+    font-size: 12px;
+    align-self: center;
+  }
+  .authButton {
+    font-size: 12px;
+    border-radius: 5px;
+  }
+}

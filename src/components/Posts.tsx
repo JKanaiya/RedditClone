@@ -1,22 +1,31 @@
-import type { Post } from "../App.tsx";
+import type { Post, SubReddit } from "../App.tsx";
+import { IoClose } from "react-icons/io5";
 import { useContext } from "react";
 import UserContext from "../UserContext.tsx";
 import { useNavigate } from "react-router";
 import useSWR from "swr";
 import PostComponent from "./Post.tsx";
 import ApiCall from "../apiCalls.ts";
+import SubRedditContext from "../SubredditContext.tsx";
 
 function Posts({
   subId,
+  subName,
   filterByFollowing,
+  toggleSelctedSubreddit,
   filter,
 }: {
   subId: number | undefined;
+  subName: string | undefined;
   filterByFollowing: boolean;
+  toggleSelctedSubreddit: (subReddit: SubReddit | null) => void;
   filter: string;
 }) {
   const nav = useNavigate();
   const { user } = useContext(UserContext);
+
+  const { setSelectedSubreddit, selectedSubreddit } =
+    useContext(SubRedditContext);
 
   const {
     data: posts,
@@ -31,6 +40,12 @@ function Posts({
   if (subId != undefined) {
     return (
       <div>
+        {subName && (
+          <div>
+            <IoClose onClick={() => setSelectedSubreddit(null)} />
+            <h3>r/{subName}</h3>
+          </div>
+        )}
         {filter
           ? posts
               .filter((post: Post) => post.subRedditId == subId)
