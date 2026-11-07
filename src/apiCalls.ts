@@ -206,6 +206,35 @@ const ApiCall = (function () {
     return result;
   };
 
+  const deleteVote = async function (
+    commentId: number | null,
+    postId: number | null,
+  ) {
+    if (commentId) {
+      const result = await api
+        .delete("vote", {
+          params: {
+            commentId,
+          },
+        })
+        .catch(function (err) {
+          return err.response;
+        });
+      return result;
+    } else if (postId) {
+      const result = await api
+        .delete("vote", {
+          params: {
+            postId,
+          },
+        })
+        .catch(function (err) {
+          return err.response;
+        });
+      return result;
+    }
+  };
+
   const commentOnPost = async function (postId: number, text: string) {
     const result = await api
       .post("comment", {
@@ -328,6 +357,7 @@ const ApiCall = (function () {
     postToSubreddit,
     voteOnComment,
     voteOnPost,
+    deleteVote,
     commentOnComment,
     commentOnPost,
     deleteComment,

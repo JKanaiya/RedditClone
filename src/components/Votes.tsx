@@ -3,7 +3,7 @@ import { BiUpvote, BiSolidUpvote } from "react-icons/bi";
 import vote from "../styles/votes.module.css";
 import type { Comment, Post, Vote } from "../App";
 import UserContext from "../UserContext";
-import { useNavigate } from "react-router";
+import ApiCall from "../apiCalls";
 
 function Votes({
   post,
@@ -13,45 +13,70 @@ function Votes({
   comment: Comment | null;
 }) {
   const { user } = useContext(UserContext);
-  // NOTE: this would need the apicall to vote on the comment/post
-  // const [votes, setVotes] = useState<number | null>(null);
-  // const [userVote, setUserVotes] = useState<Vote | null>(null);
 
   const userVote = post
     ? post.votes.find((obj) => obj.userId == user.id)
     : comment.votes.find((obj) => obj.userId == user.id);
 
   const voteValues = post
-    ? post.votes.map((vote) => (vote ? 1 : -1))
-    : comment.votes.map((vote) => (vote ? 1 : -1));
+    ? post.votes.map((vote) => (vote.positive ? 1 : -1))
+    : comment.votes.map((vote) => (vote.positive ? 1 : -1));
   const votes = voteValues.reduce((acc, curr) => acc + curr, 0);
 
-  const nav = useNavigate();
+  const updateVote = async (positive: boolean) => {
+    if (post) {
+      const userVote = post.votes.find((vote) => vote.userId == user.id);
+      if (userVote && userVote?.positive == positive) {
+        await ApiCall.deleteVote(null, post.id);
+      } else {
+        const vote = await ApiCall.voteOnPost(post.id, positive);
+        console.log(vote);
+      }
+    } else if (comment) {
+      const userVote = comment.votes.find((vote) => vote.userId == user.id);
+      if (userVote && userVote?.positive == positive) {
+        await ApiCall.deleteVote(comment.id, null);
+      } else {
+        const vote = await ApiCall.voteOnComment(comment.id, positive);
+        console.log(vote);
+      }
+    }
+  };
 
   return (
     <div className={vote.container}>
       {userVote ? (
         userVote.positive == true ? (
           <>
-            <BiSolidUpvote style={{ color: "orange" }} />
+            <BiSolidUpvote
+              style={{ color: "orange" }}
+              onClick={() => updateVote(true)}
+            />
             <p>{votes}</p>
-            <BiUpvote style={{ rotate: "180deg" }} />
+            <BiUpvote
+              style={{ rotate: "180deg" }}
+              onClick={() => updateVote(false)}
+            />
           </>
         ) : (
           <>
-            <BiUpvote />
+            <BiUpvote onClick={() => updateVote(true)} />
             <p>{votes}</p>
-            <BiSolidUpvote style={{ rotate: "180deg", color: "orange" }} />
+            <BiSolidUpvote
+              style={{ rotate: "180deg", color: "orange" }}
+              onClick={() => updateVote(false)}
+            />
           </>
         )
       ) : (
         <>
-          <BiUpvote />
+          <BiUpvote onClick={() => updateVote(true)} />
           <p>{votes}</p>
           <BiUpvote
             style={{
               rotate: "180deg",
             }}
+            onClick={() => updateVote(false)}
           />
         </>
       )}
