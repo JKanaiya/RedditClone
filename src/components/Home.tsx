@@ -1,22 +1,28 @@
 import { useNavigate } from "react-router";
+import { IoIosAddCircleOutline } from "react-icons/io";
 import axios from "axios";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoClose } from "react-icons/io5";
 import home from "../styles/home.module.css";
 import useSWR from "swr";
-// import home from "../styles/home.module.css";
 // import load from "../styles/load.module.css";
 import { useContext, useEffect, useState } from "react";
 import PostContext from "../PostContext.tsx";
-import type { SubReddit, User } from "../App.tsx";
+import type { Post, SubReddit, User } from "../App.tsx";
 import SubRedditContext from "../SubredditContext.tsx";
 import Posts from "./Posts.tsx";
 import Users from "./Users.tsx";
 import PostFilter from "./PostFilter.tsx";
 import Profile from "./Profile.tsx";
 import Nav from "./Nav.tsx";
+import Focus from "./Focus.tsx";
 import PostComponent from "./Post.tsx";
 // import { socket } from "../socket.ts";
+
+export type FocusType = {
+  active: boolean;
+  post: Post | null;
+};
 
 function Home() {
   const { selectedPost } = useContext(PostContext);
@@ -26,6 +32,7 @@ function Home() {
   // typical user page, but with options to edit user data
   const [profileOpen, setProfileOpen] = useState(false);
   const [sideBarOpen, setSideBarOpen] = useState(false);
+  const [focus, setFocus] = useState<FocusType>({ active: false, post: null });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [filterByFollowing, setFilterByFollowing] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
@@ -34,13 +41,11 @@ function Home() {
     setFilter(e.currentTarget.value);
   };
 
-  const toggleSideBar = () => {
-    setSideBarOpen(!sideBarOpen);
-  };
+  const toggleSideBar = () => setSideBarOpen(!sideBarOpen);
 
-  const toggleSelectedUser = (user: User | null) => {
-    setSelectedUser(user);
-  };
+  const toggleSelectedUser = (user: User | null) => setSelectedUser(user);
+
+  const toggleFocus = (focus: FocusType) => setFocus(focus);
 
   const nav = useNavigate();
   const token = localStorage.getItem("token");
@@ -111,7 +116,10 @@ function Home() {
   return (
     <div className={home.page}>
       <Nav searchPosts={searchPosts} toggleSideBar={toggleSideBar} />
-      <section className={home.container}>
+      <section
+        className={home.container}
+        style={{ filter: focus.active ? "blur(5px)" : "none" }}
+      >
         {window.innerWidth < 800 && sideBarOpen && (
           <aside className={home.sidebar}>
             <IoClose
@@ -128,6 +136,12 @@ function Home() {
           </aside>
         )}
 
+        <div>
+          <IoIosAddCircleOutline
+            onClick={() => toggleFocus({ active: true, post: null })}
+          />
+        </div>
+
         {window.innerWidth >= 800 && !selectedUser && (
           <aside className={home.subreddits}>
             {subreddits &&
@@ -143,6 +157,7 @@ function Home() {
         ) : selectedUser ? (
           <Profile
             user={selectedUser}
+            toggleFocus={toggleFocus}
             toggleSelectedUser={toggleSelectedUser}
           />
         ) : selectedSubreddit ? (
@@ -165,6 +180,13 @@ function Home() {
           <Users setSelectedUser={setSelectedUser} />
         )}
       </section>
+      {focus.active && (
+        <Focus
+          editingPost={focus.post}
+          toggleFocus={toggleFocus}
+          subreddits={subreddits}
+        />
+      )}
     </div>
   );
 }

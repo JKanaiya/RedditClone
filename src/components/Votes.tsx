@@ -16,11 +16,16 @@ function Votes({
 
   const userVote = post
     ? post.votes.find((obj) => obj.userId == user.id)
-    : comment.votes.find((obj) => obj.userId == user.id);
+    : comment
+      ? comment.votes.find((obj) => obj.userId == user.id)
+      : [];
 
   const voteValues = post
     ? post.votes.map((vote) => (vote.positive ? 1 : -1))
-    : comment.votes.map((vote) => (vote.positive ? 1 : -1));
+    : comment
+      ? comment.votes.map((vote) => (vote.positive ? 1 : -1))
+      : [];
+
   const votes = voteValues.reduce((acc, curr) => acc + curr, 0);
 
   const updateVote = async (positive: boolean) => {

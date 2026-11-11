@@ -12,14 +12,12 @@ function Posts({
   subId,
   subName,
   filterByFollowing,
-  toggleSelctedSubreddit,
   filter,
 }: {
   subId: number | undefined;
   subName: string | undefined;
   filterByFollowing: boolean;
-  toggleSelctedSubreddit: (subReddit: SubReddit | null) => void;
-  filter: string;
+  filter: string | null;
 }) {
   const nav = useNavigate();
   const { user } = useContext(UserContext);

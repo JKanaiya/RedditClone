@@ -1,5 +1,6 @@
 import ApiCall from "../apiCalls";
 import { useNavigate } from "react-router";
+import { RiUserFollowFill } from "react-icons/ri";
 import useSWR from "swr";
 import type { User } from "../App";
 import usersAside from "../styles/users.module.css";
@@ -29,6 +30,18 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
     }
   });
 
+  const sendFollowRequest = async (userEmail: string) => {
+    try {
+      const response = await ApiCall.sendFollowRequest(userEmail);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error following user: ${e}`);
+    }
+  };
+
   console.log(follUsers);
 
   return (
@@ -45,8 +58,9 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
       <h4>Users</h4>
       {users &&
         users.map((user: User) => (
-          <li onClick={() => setSelectedUser(user)}>
-            <p>{user.name}</p>
+          <li>
+            <p onClick={() => setSelectedUser(user)}>{user.name}</p>
+            <RiUserFollowFill onClick={() => sendFollowRequest(user.email)} />
           </li>
         ))}
     </aside>

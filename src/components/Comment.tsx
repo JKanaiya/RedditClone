@@ -1,4 +1,7 @@
 import type { Comment as CommentType } from "../App";
+import { GoReply } from "react-icons/go";
+import { MdDeleteOutline } from "react-icons/md";
+import { MdOutlineEdit } from "react-icons/md";
 import { useContext, useState } from "react";
 // import comments from "../styles/comments.module.css";
 // import text from "../styles/text.module.css";
@@ -13,28 +16,92 @@ import { useContext, useState } from "react";
 import AuthContext from "../AuthContext";
 import ApiCall from "../apiCalls";
 import Votes from "./Votes";
+import UserContext from "../UserContext";
 
 function Comment({
   comment,
   offset,
+  toggleEditingComment,
+  selectedComment,
   toggleSelectedComment,
 }: {
   comment: CommentType;
   offset: number;
+  selectedComment: CommentType | null;
+  toggleEditingComment: (comment: CommentType | null) => void;
   toggleSelectedComment: (comment: CommentType | null) => void;
 }) {
+  const { user } = useContext(UserContext);
+
+  const now = new Date();
+  const deletedString = "Comment has been deleted.";
+  const oldDate = new Date(comment?.created);
+  const diff = Math.abs(now - oldDate) / 60 / 1000;
+
+  console.log(comment);
+
+  const editable =
+    diff <= 30 && user.id == comment.userId && comment.text != deletedString;
+
+  const deleteComment = async () => {
+    try {
+      const response = await ApiCall.deleteComment(comment.id);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+
+      // NOTE: this functionality would be replaced with socketio
+      // updateComments(selectedPost, {
+      //   id: response.data.id,
+      //   text: formData.get("comment"),
+      //   postId: selectedPost.id,
+      //   subComments: [""],
+      //   selectedCommentId: selectedComment.id,
+      //   User: { email },
+      // });
+
+      // successNotify("Successfully added comment!");
+    } catch (e) {
+      // errorNotify("Failed to delete comment!");
+      console.log(`Error deleting comment: ${e}`);
+    }
+  };
   return (
     <div
-      style={{ paddingLeft: offset }}
-      onClick={() => toggleSelectedComment(comment)}
+      style={{
+        paddingLeft: offset,
+        backgroundColor:
+          selectedComment && selectedComment.id == comment.id
+            ? "green"
+            : "none",
+      }}
     >
-      {comment.text}
+      <p
+        style={{
+          fontStyle: comment.text === deletedString ? "italic" : "none",
+        }}
+      >
+        <h5>uc/{comment.User.name}</h5>
+        {comment.text}
+        {comment.edited && comment.text != deletedString && (
+          <p style={{ fontStyle: "italic" }}>Edited</p>
+        )}
+      </p>
       <Votes post={null} comment={comment} />
+      <GoReply onClick={() => toggleSelectedComment(comment)} />
+      {user.id == comment.userId && comment.text != deletedString && (
+        <MdDeleteOutline onClick={() => deleteComment()} />
+      )}
+      {editable && (
+        <MdOutlineEdit onClick={() => toggleEditingComment(comment)} />
+      )}
       {comment.subComments &&
         comment.subComments.map((comment: CommentType) => (
           <Comment
             comment={comment}
             offset={offset + 2}
+            selectedComment={selectedComment}
+            toggleEditingComment={toggleEditingComment}
             toggleSelectedComment={toggleSelectedComment}
             key={comment.id}
           />

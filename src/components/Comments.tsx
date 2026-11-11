@@ -6,9 +6,13 @@ import Comment from "./Comment";
 
 function Comments({
   postId,
+  selectedComment,
+  toggleEditingComment,
   toggleSelectedComment,
 }: {
   postId: number;
+  selectedComment: CommentType | null;
+  toggleEditingComment: (comment: CommentType | null) => void;
   toggleSelectedComment: (comment: CommentType | null) => void;
 }) {
   const token = localStorage.getItem("token");
@@ -46,6 +50,8 @@ function Comments({
           <Comment
             comment={comment}
             offset={25}
+            selectedComment={selectedComment}
+            toggleEditingComment={toggleEditingComment}
             toggleSelectedComment={toggleSelectedComment}
           />
         ))}

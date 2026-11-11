@@ -1,19 +1,110 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { FaRegCircleCheck } from "react-icons/fa6";
+import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
+import { RiUserUnfollowFill } from "react-icons/ri";
+import { IoClose } from "react-icons/io5";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import type { User } from "../App";
 import profile from "../styles/profile.module.css";
 import PostComponent from "./Post";
+import UserContext from "../UserContext";
+import type { FocusType } from "./Home";
+import ApiCall from "../apiCalls";
 
 function Profile({
   user,
+  toggleFocus,
   toggleSelectedUser,
 }: {
   user: User;
   toggleSelectedUser: (user: User | null) => void;
+  toggleFocus: (focus: FocusType) => void;
 }) {
   const [selectedSection, setSelectedSection] = useState<string | null>(
     "posts",
   );
+
+  const unfollowUser = async (otherUserId: number) => {
+    try {
+      const response = await ApiCall.unfollowUser(otherUserId);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error unfollowing user: ${e}`);
+    }
+  };
+
+  const acceptFollowRequest = async (follReqId: number) => {
+    try {
+      const response = await ApiCall.acceptFollowRequest(follReqId);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error accpeting follow request: ${e}`);
+    }
+  };
+
+  const denyFollowRequest = async (follReqId: number) => {
+    try {
+      const response = await ApiCall.rejectFollowRequest(follReqId);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error rejecting follow request, nothing was changed: ${e}`);
+    }
+  };
+
+  const followingWithRequests = (user: User) => {
+    if (user.followRequests) {
+      return (
+        <div>
+          {user.followRequests.map((u) => (
+            <li>
+              <p>Name: {u.sender.name}</p>
+              <p>Email: {u.sender.email}</p>
+              <FaRegCircleCheck onClick={() => acceptFollowRequest(u.id)} />
+              <IoClose onClick={() => denyFollowRequest(u.id)} />
+            </li>
+          ))}
+          {user.followers.map((u) => (
+            <li>
+              <p>Name: {u.name}</p>
+              <p>Email: {u.email}</p>
+            </li>
+          ))}
+        </div>
+      );
+    } else {
+      <div>
+        {user.followers.map((u) => (
+          <li>
+            <p>Name: {u.name}</p>
+            <p>Email: {u.email}</p>
+          </li>
+        ))}
+      </div>;
+    }
+  };
+
+  const deletePost = async (postId: number) => {
+    try {
+      const response = await ApiCall.deletePost(postId);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error updating post: ${e}`);
+    }
+  };
+
+  const { user: loggedInUser } = useContext(UserContext);
 
   const isSelected = (section: string) => section == selectedSection;
 
@@ -48,17 +139,13 @@ function Profile({
       {/* change the format from (following aside | posts |  followers aside) to ( option posts OR option followers OR option following) depending on screenwidth */}
       {window.innerWidth < 800 ? (
         selectedSection == "followers" ? (
-          user.followers.map((u) => (
-            <li>
-              <p>Name: {u.name}</p>
-              <p>Email: {u.email}</p>
-            </li>
-          ))
+          followingWithRequests(user)
         ) : selectedSection == "following" ? (
           user.following.map((u) => (
             <li>
               <p>Name: {u.name}</p>
               <p>Email: {u.email}</p>
+              <RiUserUnfollowFill />
             </li>
           ))
         ) : (
@@ -72,9 +159,17 @@ function Profile({
         <div className={profile.container}>
           <h4>Posts</h4>
           <section className={profile.posts}>
-            {user.posts.map((post) => (
-              <PostComponent post={post} />
-            ))}
+            {loggedInUser.id == user.id
+              ? user.posts.map((post) => (
+                  <>
+                    <PostComponent post={post} />
+                    <MdOutlineEdit
+                      onClick={() => toggleFocus({ active: true, post: post })}
+                    />
+                    <MdDeleteOutline onClick={() => deletePost(post.id)} />
+                  </>
+                ))
+              : user.posts.map((post) => <PostComponent post={post} />)}
           </section>
           <aside className={profile.following}>
             <h4>Following</h4>
@@ -82,6 +177,7 @@ function Profile({
               <li>
                 <p>Name: {u.name}</p>
                 <p>Email: {u.email}</p>
+                <RiUserUnfollowFill onClick={() => unfollowUser(u.id)} />
               </li>
             ))}
           </aside>

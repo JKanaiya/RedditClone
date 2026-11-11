@@ -259,6 +259,15 @@ const ApiCall = (function () {
     return result;
   };
 
+  const deletePost = async function (postId: number) {
+    const result = await api.delete("post", {
+      params: {
+        postId,
+      },
+    });
+    return result;
+  };
+
   const deleteComment = async function (commentId: number) {
     const result = await api.delete("comment", {
       params: {
@@ -268,8 +277,21 @@ const ApiCall = (function () {
     return result;
   };
 
+  const updatePost = async function (
+    postId: number,
+    text: string,
+    title: string,
+  ) {
+    const result = await api.patch("post", {
+      postId,
+      text,
+      title,
+    });
+    return result;
+  };
+
   const updateComment = async function (commentId: number, text: string) {
-    const result = await api.post("delete-comment", {
+    const result = await api.patch("comment", {
       commentId,
       text,
     });
@@ -343,6 +365,17 @@ const ApiCall = (function () {
     return result.data;
   };
 
+  const unfollowUser = async (otherUserId: number) => {
+    const result = await api
+      .patch("following", {
+        otherUserId,
+      })
+      .catch(function (err) {
+        return err.response;
+      });
+    return result;
+  };
+
   return {
     signUp,
     authCheck,
@@ -361,7 +394,10 @@ const ApiCall = (function () {
     commentOnComment,
     commentOnPost,
     deleteComment,
+    deletePost,
     updateComment,
+    updatePost,
+    unfollowUser,
     // setProfileImage,
     // spectatorSignUp,
     // spectatorLogin,
