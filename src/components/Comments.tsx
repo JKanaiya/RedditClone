@@ -17,6 +17,7 @@ function Comments({
 }) {
   const token = localStorage.getItem("token");
   const nav = useNavigate();
+
   const getComments = async (url: string) => {
     const comments = await axios
       .get(url, {
@@ -36,9 +37,14 @@ function Comments({
   const {
     data: comments,
     error,
-    mutate,
     isLoading: loading,
   } = useSWR(import.meta.env.VITE_BACKEND_URL + "comments", getComments);
+
+  const filtered = comments.filter(
+    (comment: CommentType) => comment.parentCommentId == null,
+  );
+
+  console.log(comments);
 
   if (loading) return <p>loading...</p>;
   if (error) nav("/error");
@@ -46,11 +52,17 @@ function Comments({
   return (
     <div>
       {comments &&
-        comments.map((comment: CommentType) => (
+        filtered.map((comment: CommentType) => (
           <Comment
             comment={comment}
             offset={25}
-            selectedComment={selectedComment}
+            selectedComment={
+              selectedComment
+                ? comments.find(
+                    (com: CommentType) => com.id == selectedComment.id,
+                  )
+                : selectedComment
+            }
             toggleEditingComment={toggleEditingComment}
             toggleSelectedComment={toggleSelectedComment}
           />

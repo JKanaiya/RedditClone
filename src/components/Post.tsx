@@ -3,7 +3,7 @@ import { MdOutlineEdit } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import type { Comment as CommentType, Post } from "../App";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import ApiCall from "../apiCalls.ts";
 import PostContext from "../PostContext.tsx";
 import AuthContext from "../AuthContext.tsx";
@@ -45,6 +45,8 @@ function PostComponent({ post }: { post: Post }) {
 
         if (response.status != 200) {
           throw new Error(`HTTP Error! Status: ${response.status}`);
+        } else {
+          mutate(import.meta.env.VITE_BACKEND_URL + "comments");
         }
 
         // NOTE: this functionality would be replaced with socketio
@@ -71,6 +73,8 @@ function PostComponent({ post }: { post: Post }) {
 
         if (response.status != 200) {
           throw new Error(`HTTP Error! Status: ${response.status}`);
+        } else {
+          mutate(import.meta.env.VITE_BACKEND_URL + "posts");
         }
 
         // NOTE: this functionality would be replaced with socketio
@@ -99,6 +103,8 @@ function PostComponent({ post }: { post: Post }) {
 
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        mutate(import.meta.env.VITE_BACKEND_URL + "comments");
       }
 
       // NOTE: this functionality would be replaced with socketio

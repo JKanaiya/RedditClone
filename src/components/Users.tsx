@@ -42,6 +42,17 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
     }
   };
 
+  const canFollow = (u: User) => {
+    if (u.id != user.id) {
+      const found = user?.following.find(
+        (otherUser: User) => otherUser.id == u.id,
+      );
+      return found == undefined;
+    } else {
+      return false;
+    }
+  };
+
   console.log(follUsers);
 
   return (
@@ -57,10 +68,12 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
           ))}
       <h4>Users</h4>
       {users &&
-        users.map((user: User) => (
+        users.map((u: User) => (
           <li>
-            <p onClick={() => setSelectedUser(user)}>{user.name}</p>
-            <RiUserFollowFill onClick={() => sendFollowRequest(user.email)} />
+            <p onClick={() => setSelectedUser(u)}>{u.name}</p>
+            {canFollow(u) && (
+              <RiUserFollowFill onClick={() => sendFollowRequest(u.email)} />
+            )}
           </li>
         ))}
     </aside>

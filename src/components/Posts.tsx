@@ -1,4 +1,5 @@
 import type { Post, SubReddit } from "../App.tsx";
+import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import { useContext } from "react";
 import UserContext from "../UserContext.tsx";
@@ -25,12 +26,29 @@ function Posts({
   const { setSelectedSubreddit, selectedSubreddit } =
     useContext(SubRedditContext);
 
+  const token = localStorage.getItem("token");
+
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+
+  const getPosts = async (url: string) => {
+    const posts = await axios.get(url, config).catch(function (err) {
+      console.log(err);
+      if (401 == err.response.status) {
+        console.error("Unauthorized");
+      }
+      return err.response;
+    });
+    return posts.data;
+  };
+
   const {
     data: posts,
     error,
     mutate,
     isLoading: loading,
-  } = useSWR(import.meta.env.VITE_BACKEND_URL, ApiCall.getPosts);
+  } = useSWR(import.meta.env.VITE_BACKEND_URL + "posts", getPosts);
 
   if (loading) return <p>loading...</p>;
   if (error) nav("/error");
@@ -41,7 +59,7 @@ function Posts({
         {subName && (
           <div>
             <IoClose onClick={() => setSelectedSubreddit(null)} />
-            <h3>r/{subName}</h3>
+            <h3>rc/{subName}</h3>
           </div>
         )}
         {filter

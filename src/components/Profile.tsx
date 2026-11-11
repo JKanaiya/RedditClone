@@ -10,6 +10,7 @@ import PostComponent from "./Post";
 import UserContext from "../UserContext";
 import type { FocusType } from "./Home";
 import ApiCall from "../apiCalls";
+import { mutate } from "swr";
 
 function Profile({
   user,
@@ -97,6 +98,8 @@ function Profile({
       const response = await ApiCall.deletePost(postId);
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
     } catch (e) {
       // errorNotify("Failed to add comment!");
