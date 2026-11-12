@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import type { Comment as CommentType } from "../App";
 import Comment from "./Comment";
+import { useContext, useEffect } from "react";
+import { socket } from "../socket";
+import PostContext from "../PostContext";
 
 function Comments({
   postId,
@@ -17,6 +20,8 @@ function Comments({
 }) {
   const token = localStorage.getItem("token");
   const nav = useNavigate();
+
+  const { selectedPost } = useContext(PostContext);
 
   const getComments = async (url: string) => {
     const comments = await axios
@@ -33,6 +38,13 @@ function Comments({
       });
     return comments.data;
   };
+
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, [selectedPost]);
 
   const {
     data: comments,

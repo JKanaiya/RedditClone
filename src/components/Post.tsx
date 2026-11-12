@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { socket } from "../socket";
 import { MdOutlineEdit } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { IoIosAddCircleOutline } from "react-icons/io";

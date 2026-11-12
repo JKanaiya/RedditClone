@@ -117,8 +117,8 @@ const ApiCall = (function () {
 
   const updateUserName = async function (formData: FormData) {
     const result = await api
-      .patch("name", {
-        newName: formData.get("newName"),
+      .patch("user", {
+        newName: formData.get("editedName"),
       })
       .catch(function (err) {
         return err.response;

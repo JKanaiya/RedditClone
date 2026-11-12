@@ -1,11 +1,13 @@
 import { useContext, useState } from "react";
-import { FaRegCircleCheck } from "react-icons/fa6";
+import { FaRegCircleCheck, FaCheck } from "react-icons/fa6";
+import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
 import { RiUserUnfollowFill } from "react-icons/ri";
 import { IoClose } from "react-icons/io5";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import type { User } from "../App";
 import profile from "../styles/profile.module.css";
+import icons from "../styles/icons.module.css";
 import PostComponent from "./Post";
 import UserContext from "../UserContext";
 import type { FocusType } from "./Home";
@@ -24,6 +26,8 @@ function Profile({
   const [selectedSection, setSelectedSection] = useState<string | null>(
     "posts",
   );
+
+  const [editing, setEditing] = useState(false);
 
   const unfollowUser = async (otherUserId: number) => {
     try {
@@ -93,6 +97,21 @@ function Profile({
     }
   };
 
+  // NOTE: This would be modified to add updating user profile image
+  const updateUserName = async (formData: FormData) => {
+    try {
+      const response = await ApiCall.updateUserName(formData);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        mutate(import.meta.env.VITE_BACKEND_URL + "posts");
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error updating user name: ${e}`);
+    }
+  };
+
   const deletePost = async (postId: number) => {
     try {
       const response = await ApiCall.deletePost(postId);
@@ -107,6 +126,9 @@ function Profile({
     }
   };
 
+  const toggleEditing = () => {
+    setEditing(editing ? false : true);
+  };
   const { user: loggedInUser } = useContext(UserContext);
 
   const isSelected = (section: string) => section == selectedSection;
@@ -115,7 +137,21 @@ function Profile({
     <div>
       <section className={profile.userBar}>
         <IoMdCloseCircleOutline onClick={() => toggleSelectedUser(null)} />
-        <h3>uc/{user.name}</h3>
+        {editing ? (
+          <form action={updateUserName}>
+            <input type="text" name="editedName" defaultValue={user.name} />
+            <button type="submit" style={{ display: "flex" }}>
+              <FaCheck className={icons.edit} />
+            </button>
+          </form>
+        ) : (
+          <h3>uc/{user.name}</h3>
+        )}
+        {user.id == loggedInUser!.id && (
+          <span onClick={toggleEditing} className={icons.commentEdit}>
+            <FiEdit2 />
+          </span>
+        )}
       </section>
       {window.innerWidth < 800 && (
         <div className={profile.sectionSelection}>
