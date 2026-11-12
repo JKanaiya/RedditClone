@@ -358,6 +358,17 @@ const ApiCall = (function () {
     return result;
   };
 
+  const setProfileImage = async function (piUrl: string) {
+    const result = await api
+      .post("profile-image", {
+        piUrl,
+      })
+      .catch(function (err) {
+        return err.response;
+      });
+    return result;
+  };
+
   const getUsers = async function () {
     const result = await api.get("users").catch(function (err) {
       return err.response;
@@ -398,7 +409,7 @@ const ApiCall = (function () {
     updateComment,
     updatePost,
     unfollowUser,
-    // setProfileImage,
+    setProfileImage,
     // spectatorSignUp,
     // spectatorLogin,
     getUsers,

@@ -132,7 +132,7 @@ const SignUp = () => {
       // socket.timeout(2000).emit("user-added");
       mutate(import.meta.env.VITE_BACKEND_URL + "users", true);
 
-      login(formData.get("messaging_app_email"));
+      login(formData.get("email"));
       nav("/");
     } catch (e) {
       console.log(`Error signing up: ${e}`);

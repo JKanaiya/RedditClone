@@ -99,7 +99,7 @@ const Login = () => {
       upsertUser(response.data.user);
 
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("messaging_app_email", formData.get("email"));
+      localStorage.setItem("email", formData.get("email"));
 
       await login(formData.get("email"));
       nav("/");

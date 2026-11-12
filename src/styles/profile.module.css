@@ -4,3 +4,120 @@
   justify-content: space-around;
   min-width: 80dvw;
 }
+
+.container {
+  min-width: 30dvw;
+  display: flex;
+  position: absolute;
+  border-radius: 20px;
+  bottom: 2%;
+  flex-direction: column;
+  row-gap: 20px;
+  justify-content: center;
+  align-items: center;
+  min-height: 50dvh;
+  background-color: oklch(0.3176 0.0789 266.53);
+}
+
+.container form {
+  display: flex;
+  align-items: center;
+  row-gap: 20px;
+  flex-direction: column;
+}
+
+.nameUpdate {
+  min-width: 100%;
+  padding: 2%;
+  border: none;
+  border-radius: 5px;
+  font-family: "Ubuntu", sans-serif;
+}
+
+.container img {
+  height: 200px;
+  width: 200px;
+}
+
+.container label {
+  /* min-width: 100%; */
+  /* min-height: 100%; */
+  /* display: flex; */
+  /* place-content: center; */
+  /* align-items: center; */
+  /* border-radius: 50%; */
+}
+
+/* label svg { */
+/*   position: absolute; */
+/*   left: auto; */
+/*   top: auto; */
+/*   display: none; */
+/*   width: 40px; */
+/*   height: 40px; */
+/* } */
+
+.container img {
+  z-index: 3;
+}
+
+.container > svg {
+  position: absolute;
+  color: gray;
+  top: 3%;
+  right: 3%;
+  height: 35px;
+  width: 35px;
+}
+
+.image {
+  display: flex;
+}
+
+.editImage {
+  color: transparent;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-blend-mode: multiply;
+  background-position: center;
+  vertical-align: middle;
+  background-size: cover;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.editImage:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  color: #fff;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.editImage > svg {
+  position: absolute;
+  left: auto;
+  top: auto;
+  height: 200px;
+  width: 200px;
+  display: inline-block;
+  padding-top: 4.5em;
+  padding-bottom: 4.5em;
+}
+
+.editImage button {
+  min-width: 40px;
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    min-width: 60dvw;
+  }
+
+  .editImage {
+    width: 150px;
+    height: 150px;
+  }
+}

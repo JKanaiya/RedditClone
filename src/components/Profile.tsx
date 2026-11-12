@@ -13,6 +13,7 @@ import UserContext from "../UserContext";
 import type { FocusType } from "./Home";
 import ApiCall from "../apiCalls";
 import { mutate } from "swr";
+import { supabase } from "../supabase";
 
 function Profile({
   user,
@@ -26,8 +27,10 @@ function Profile({
   const [selectedSection, setSelectedSection] = useState<string | null>(
     "posts",
   );
+  const { user: loggedInUser, upsertUser } = useContext(UserContext);
 
   const [editing, setEditing] = useState(false);
+  const [file, setFile] = useState<null | File>(null);
 
   const unfollowUser = async (otherUserId: number) => {
     try {
@@ -97,7 +100,9 @@ function Profile({
     }
   };
 
-  // NOTE: This would be modified to add updating user profile image
+  const specEmail = localStorage.getItem("spec_email");
+  const email = specEmail ? specEmail : localStorage.getItem("email");
+
   const updateUserName = async (formData: FormData) => {
     try {
       const response = await ApiCall.updateUserName(formData);
@@ -126,10 +131,44 @@ function Profile({
     }
   };
 
+  const updateProfileImage = async (e) => {
+    const now = new Date();
+    const newProfileImageUrl = now.toISOString();
+
+    setFile(e.target.files[0]);
+    if (user.profileImageUrl) {
+      const { data, error } = await supabase.storage
+        .from("userData")
+        .remove([`${email}/profileImage/${user.profileImageUrl}`]);
+
+      error ? console.log("Err" + error) : console.log("Data" + data);
+    }
+
+    const response = await ApiCall.setProfileImage(`${newProfileImageUrl}`);
+
+    if (response.status != 200) {
+      throw new Error(`HTTP Error! Status: ${response.status}`);
+    } else {
+      const { data, error } = await supabase.storage
+        .from("userData")
+        .upload(`${email}/profileImage/${newProfileImageUrl}`, file, {
+          contentType: "image/png",
+        });
+      const updatedUser = { ...user, profileImageUrl: newProfileImageUrl };
+      error ? console.log("Err" + error) : upsertUser(updatedUser);
+    }
+  };
+
+  // TODO figure this out
+  const userImg =
+    user.profileImageUrl != null &&
+    supabase.storage
+      .from("userData")
+      .getPublicUrl(email + "/profileImage/" + user.profileImageUrl!);
+
   const toggleEditing = () => {
     setEditing(editing ? false : true);
   };
-  const { user: loggedInUser } = useContext(UserContext);
 
   const isSelected = (section: string) => section == selectedSection;
 
@@ -137,6 +176,24 @@ function Profile({
     <div>
       <section className={profile.userBar}>
         <IoMdCloseCircleOutline onClick={() => toggleSelectedUser(null)} />
+        <label htmlFor="upload file">
+          <div
+            className={profile.editImage}
+            // this section needs to wait for the existence of an actual profile image
+            style={{ backgroundImage: `url(${userImg.data.publicUrl})` }}
+          >
+            {/* <img src={userImg.data.publicUrl} style={{ borderRadius: "50%" }} /> */}
+            <FiEdit2 />
+          </div>
+        </label>
+        <input
+          id="upload file"
+          type="file"
+          name="uplaoded_file"
+          onChange={updateProfileImage}
+          placeholder=""
+          style={{ display: "none" }}
+        />
         {editing ? (
           <form action={updateUserName}>
             <input type="text" name="editedName" defaultValue={user.name} />
