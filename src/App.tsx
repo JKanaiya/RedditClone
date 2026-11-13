@@ -33,6 +33,7 @@ export type Post = {
   id: number;
   title: string;
   text: string;
+  postImageUrl: string | null;
   votes: Vote[] | [];
   comments: Comment[] | [];
   subRedditId: number;

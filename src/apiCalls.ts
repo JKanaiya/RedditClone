@@ -101,20 +101,6 @@ const ApiCall = (function () {
     return result;
   };
 
-  // TODO: Value to be determined
-  // const setProfileImage = async function (piUrl: string) {
-  //   const email = localStorage.getItem("messaging_app_email");
-  //   const result = await api
-  //     .post("profile-image", {
-  //       email,
-  //       piUrl,
-  //     })
-  //     .catch(function (err) {
-  //       return err.response;
-  //     });
-  //   return result;
-  // };
-
   const updateUserName = async function (formData: FormData) {
     const result = await api
       .patch("user", {
@@ -169,12 +155,14 @@ const ApiCall = (function () {
     subName: string,
     text: string,
     title: string,
+    imageUrl: string | undefined,
   ) {
     const result = await api
       .post("sub-post", {
         subName,
         text,
         title,
+        imageUrl,
       })
       .catch(function (err) {
         return err.response;
@@ -281,11 +269,13 @@ const ApiCall = (function () {
     postId: number,
     text: string,
     title: string,
+    imageUrl: string | undefined,
   ) {
     const result = await api.patch("post", {
       postId,
       text,
       title,
+      imageUrl,
     });
     return result;
   };

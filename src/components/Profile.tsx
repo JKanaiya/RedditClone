@@ -27,10 +27,12 @@ function Profile({
   const [selectedSection, setSelectedSection] = useState<string | null>(
     "posts",
   );
-  const { user: loggedInUser, upsertUser } = useContext(UserContext);
-
   const [editing, setEditing] = useState(false);
-  const [file, setFile] = useState<null | File>(null);
+
+  const specEmail = localStorage.getItem("spec_email");
+  const email = specEmail ? specEmail : localStorage.getItem("email");
+
+  const { user: loggedInUser, upsertUser } = useContext(UserContext);
 
   const unfollowUser = async (otherUserId: number) => {
     try {
@@ -68,41 +70,6 @@ function Profile({
     }
   };
 
-  const followingWithRequests = (user: User) => {
-    if (user.followRequests) {
-      return (
-        <div>
-          {user.followRequests.map((u) => (
-            <li>
-              <p>Name: {u.sender.name}</p>
-              <p>Email: {u.sender.email}</p>
-              <FaRegCircleCheck onClick={() => acceptFollowRequest(u.id)} />
-              <IoClose onClick={() => denyFollowRequest(u.id)} />
-            </li>
-          ))}
-          {user.followers.map((u) => (
-            <li>
-              <p>Name: {u.name}</p>
-              <p>Email: {u.email}</p>
-            </li>
-          ))}
-        </div>
-      );
-    } else {
-      <div>
-        {user.followers.map((u) => (
-          <li>
-            <p>Name: {u.name}</p>
-            <p>Email: {u.email}</p>
-          </li>
-        ))}
-      </div>;
-    }
-  };
-
-  const specEmail = localStorage.getItem("spec_email");
-  const email = specEmail ? specEmail : localStorage.getItem("email");
-
   const updateUserName = async (formData: FormData) => {
     try {
       const response = await ApiCall.updateUserName(formData);
@@ -135,10 +102,9 @@ function Profile({
     const now = new Date();
     const newProfileImageUrl = now.toISOString();
 
-    setFile(e.target.files[0]);
     if (user.profileImageUrl) {
       const { data, error } = await supabase.storage
-        .from("userData")
+        .from("UserData")
         .remove([`${email}/profileImage/${user.profileImageUrl}`]);
 
       error ? console.log("Err" + error) : console.log("Data" + data);
@@ -150,10 +116,15 @@ function Profile({
       throw new Error(`HTTP Error! Status: ${response.status}`);
     } else {
       const { data, error } = await supabase.storage
-        .from("userData")
-        .upload(`${email}/profileImage/${newProfileImageUrl}`, file, {
-          contentType: "image/png",
-        });
+        .from("UserData")
+        .upload(
+          `${email}/profileImage/${newProfileImageUrl}`,
+          e.target.files[0],
+          {
+            contentType: "image/png",
+            cacheControl: "3600",
+          },
+        );
       const updatedUser = { ...user, profileImageUrl: newProfileImageUrl };
       error ? console.log("Err" + error) : upsertUser(updatedUser);
     }
@@ -163,7 +134,7 @@ function Profile({
   const userImg =
     user.profileImageUrl != null &&
     supabase.storage
-      .from("userData")
+      .from("UserData")
       .getPublicUrl(email + "/profileImage/" + user.profileImageUrl!);
 
   const toggleEditing = () => {
@@ -171,6 +142,38 @@ function Profile({
   };
 
   const isSelected = (section: string) => section == selectedSection;
+
+  const followingWithRequests = (user: User) => {
+    if (user.followRequests) {
+      return (
+        <div>
+          {user.followRequests.map((u) => (
+            <li>
+              <p>Name: {u.sender.name}</p>
+              <p>Email: {u.sender.email}</p>
+              <FaRegCircleCheck onClick={() => acceptFollowRequest(u.id)} />
+              <IoClose onClick={() => denyFollowRequest(u.id)} />
+            </li>
+          ))}
+          {user.followers.map((u) => (
+            <li>
+              <p>Name: {u.name}</p>
+              <p>Email: {u.email}</p>
+            </li>
+          ))}
+        </div>
+      );
+    } else {
+      <div>
+        {user.followers.map((u) => (
+          <li>
+            <p>Name: {u.name}</p>
+            <p>Email: {u.email}</p>
+          </li>
+        ))}
+      </div>;
+    }
+  };
 
   return (
     <div>
@@ -180,7 +183,12 @@ function Profile({
           <div
             className={profile.editImage}
             // this section needs to wait for the existence of an actual profile image
-            style={{ backgroundImage: `url(${userImg.data.publicUrl})` }}
+            style={{
+              backgroundImage:
+                userImg.data != null
+                  ? `url(${userImg.data.publicUrl})`
+                  : "url('/assets/images/generic_profile.jpg')",
+            }}
           >
             {/* <img src={userImg.data.publicUrl} style={{ borderRadius: "50%" }} /> */}
             <FiEdit2 />
@@ -189,7 +197,7 @@ function Profile({
         <input
           id="upload file"
           type="file"
-          name="uplaoded_file"
+          name="uploaded_file"
           onChange={updateProfileImage}
           placeholder=""
           style={{ display: "none" }}

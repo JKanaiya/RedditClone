@@ -11,6 +11,7 @@ import AuthContext from "../AuthContext.tsx";
 import Comments from "./Comments.tsx";
 import Votes from "./Votes.tsx";
 import UserContext from "../UserContext.tsx";
+import { supabase } from "../supabase.ts";
 
 function PostComponent({ post }: { post: Post }) {
   const voteValues = post.votes.map((vote) => (vote ? 1 : -1));
@@ -125,6 +126,10 @@ function PostComponent({ post }: { post: Post }) {
     }
   };
 
+  const postImg =
+    post?.postImageUrl != null &&
+    supabase.storage.from("UserData").getPublicUrl(post.postImageUrl);
+
   return (
     <div>
       {selectedPost && <IoClose onClick={() => toggleSelectedPost(null)} />}
@@ -132,6 +137,11 @@ function PostComponent({ post }: { post: Post }) {
         <h4>{post.title}</h4>
         <p>{post.text}</p>
         {/* {post.user.id == user.id && <MdOutlineEdit />} */}
+        {postImg && (
+          <div
+            style={{ backgroundImage: `url(${postImg.data.publicUrl})` }}
+          ></div>
+        )}
 
         <Votes post={post} comment={null} />
         {/* {might need to kick selectedPost in the cases where post is being showed outside of a Posts component} */}

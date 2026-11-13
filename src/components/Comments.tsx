@@ -52,9 +52,9 @@ function Comments({
     isLoading: loading,
   } = useSWR(import.meta.env.VITE_BACKEND_URL + "comments", getComments);
 
-  const filtered = comments.filter(
-    (comment: CommentType) => comment.parentCommentId == null,
-  );
+  const filtered =
+    comments &&
+    comments.filter((comment: CommentType) => comment.parentCommentId == null);
 
   console.log(comments);
 
