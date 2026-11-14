@@ -39,13 +39,6 @@ function Comments({
     return comments.data;
   };
 
-  useEffect(() => {
-    socket.connect();
-    return () => {
-      socket.disconnect();
-    };
-  }, [selectedPost]);
-
   const {
     data: comments,
     error,

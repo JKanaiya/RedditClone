@@ -1,13 +1,13 @@
 .headingTitle {
   composes: softWhite from "../colors.module.css";
   font:
-    1.5rem / 1em "Anton SC",
+    1.5rem / 1em "Reddit Mono",
     sans-serif;
 }
 
 .buttonText {
   font:
-    1.2rem / 1.5em "Anton SC",
+    1.2rem / 1.5em "Reddit Mono",
     sans-serif;
 }
 
@@ -21,6 +21,8 @@
 .baseText {
   display: flex;
   min-width: 0px;
+  font-size: 0.8rem;
+  font-weight: 500;
   max-width: 90%;
   overflow: hidden;
   composes: softerWhite from "../colors.module.css";

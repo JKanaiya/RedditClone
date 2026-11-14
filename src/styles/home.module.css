@@ -1,7 +1,9 @@
 .page {
   display: flex;
   position: relative;
+  composes: bgColor from "../colors.module.css";
   flex-direction: column;
+  composes: softWhite from "../colors.module.css";
   min-height: 100dvh;
 }
 .container {

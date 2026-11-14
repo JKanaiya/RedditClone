@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
 import { MdOutlineEdit } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
@@ -24,6 +24,24 @@ function PostComponent({ post }: { post: Post }) {
     null,
   );
 
+  socket.on("connect_error", (err) => {
+    // the reason of the error, for example "xhr poll error"
+    console.log(err.message);
+
+    // some additional description, for example the status code of the initial HTTP response
+    console.log(err.description);
+
+    // some additional context, for example the XMLHttpRequest object
+    console.log(err.context);
+  });
+
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, [selectedPost]);
+
   const toggleSelectedComment = (comment: CommentType | null) =>
     setSelectedComment(comment);
 
@@ -40,27 +58,20 @@ function PostComponent({ post }: { post: Post }) {
   const addComment = async (formData: FormData) => {
     if (selectedComment) {
       try {
-        const response = await ApiCall.commentOnComment(
-          selectedComment.id,
-          formData.get("comment")!.toString(),
-        );
-
-        if (response.status != 200) {
-          throw new Error(`HTTP Error! Status: ${response.status}`);
-        } else {
-          mutate(import.meta.env.VITE_BACKEND_URL + "comments");
-        }
-
-        // NOTE: this functionality would be replaced with socketio
-        // updateComments(selectedPost, {
-        //   id: response.data.id,
-        //   text: formData.get("comment"),
-        //   postId: selectedPost.id,
-        //   subComments: [""],
-        //   selectedCommentId: selectedComment.id,
-        //   User: { email },
-        // });
-
+        socket.emit("comment-on-comment", {
+          commentId: selectedComment.id,
+          text: formData.get("comment")?.toString(),
+        });
+        // const response = await ApiCall.commentOnComment(
+        //   selectedComment.id,
+        //   formData.get("comment")!.toString(),
+        // );
+        //
+        // if (response.status != 200) {
+        //   throw new Error(`HTTP Error! Status: ${response.status}`);
+        // } else {
+        //   mutate(import.meta.env.VITE_BACKEND_URL + "comments");
+        // }
         // successNotify("Successfully added comment!");
       } catch (e) {
         // errorNotify("Failed to add comment!");
@@ -68,26 +79,20 @@ function PostComponent({ post }: { post: Post }) {
       }
     } else {
       try {
-        const response = await ApiCall.commentOnPost(
-          post.id,
-          formData.get("comment")!.toString(),
-        );
-
-        if (response.status != 200) {
-          throw new Error(`HTTP Error! Status: ${response.status}`);
-        } else {
-          mutate(import.meta.env.VITE_BACKEND_URL + "posts");
-        }
-
-        // NOTE: this functionality would be replaced with socketio
-        // updateComments(selectedPost, {
-        //   id: response.data.id,
-        //   text: formData.get("comment"),
-        //   subComments: [""],
-        //   postId: selectedPost.id,
-        //   User: { email },
-        // });
-
+        socket.emit("comment-on-post", {
+          postId: post.id,
+          text: formData.get("comment")?.toString(),
+        });
+        // const response = await ApiCall.commentOnPost(
+        //   post.id,
+        //   formData.get("comment")!.toString(),
+        // );
+        //
+        // if (response.status != 200) {
+        //   throw new Error(`HTTP Error! Status: ${response.status}`);
+        // } else {
+        //   mutate(import.meta.env.VITE_BACKEND_URL + "posts");
+        // }
         // successNotify("Successfully added comment!");
       } catch (e) {
         // errorNotify("Failed to add comment!");
@@ -98,33 +103,49 @@ function PostComponent({ post }: { post: Post }) {
 
   const editComment = async (formData: FormData) => {
     try {
-      const response = await ApiCall.updateComment(
-        editingCommentId!,
-        formData.get("comment")!.toString(),
-      );
-
-      if (response.status != 200) {
-        throw new Error(`HTTP Error! Status: ${response.status}`);
-      } else {
-        mutate(import.meta.env.VITE_BACKEND_URL + "comments");
-      }
-
-      // NOTE: this functionality would be replaced with socketio
-      // updateComments(selectedPost, {
-      //   id: response.data.id,
-      //   text: formData.get("comment"),
-      //   postId: selectedPost.id,
-      //   subComments: [""],
-      //   selectedCommentId: selectedComment.id,
-      //   User: { email },
-      // });
-
-      // successNotify("Successfully edited comment!");
+      socket.emit("edit-comment", {
+        commentId: editingCommentId,
+        text: formData.get("comment")?.toString(),
+      });
     } catch (e) {
-      // errorNotify("Failed to edit comment!");
       console.log(`Error editing comment: ${e}`);
     }
+    // try {
+    //   const response = await ApiCall.updateComment(
+    //     editingCommentId!,
+    //     formData.get("comment")!.toString(),
+    //   );
+    //
+    //   if (response.status != 200) {
+    //     throw new Error(`HTTP Error! Status: ${response.status}`);
+    //   } else {
+    //     mutate(import.meta.env.VITE_BACKEND_URL + "comments");
+    //   }
+    //
+    //   // NOTE: this functionality would be replaced with socketio
+    //   // updateComments(selectedPost, {
+    //   //   id: response.data.id,
+    //   //   text: formData.get("comment"),
+    //   //   postId: selectedPost.id,
+    //   //   subComments: [""],
+    //   //   selectedCommentId: selectedComment.id,
+    //   //   User: { email },
+    //   // });
+    //
+    //   // successNotify("Successfully edited comment!");
+    // } catch (e) {
+    //   // errorNotify("Failed to edit comment!");
+    //   console.log(`Error editing comment: ${e}`);
+    // }
   };
+  socket.on("updated-comments", () => {
+    console.log("?");
+    try {
+      mutate(import.meta.env.VITE_BACKEND_URL + "comments");
+    } catch (e) {
+      console.log("error: " + e);
+    }
+  });
 
   const postImg =
     post?.postImageUrl != null &&

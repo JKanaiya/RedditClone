@@ -27,7 +27,31 @@ function Nav({
         {window.innerWidth < 868 && (
           <RxHamburgerMenu onClick={() => toggleSideBar()} />
         )}
-        {window.innerWidth >= 868 ? <h3>RedditClone</h3> : <h3> r/Clone </h3>}
+        {window.innerWidth >= 868 ? (
+          <h3>
+            reddit
+            <span
+              style={{
+                color: "oklch(0.5845 0.2024 35.53)",
+                fontStyle: "italic",
+              }}
+            >
+              clone{" "}
+            </span>
+          </h3>
+        ) : (
+          <h3>
+            {" "}
+            r/
+            <span
+              style={{
+                color: "oklch(0.5845 0.2024 35.53)",
+              }}
+            >
+              clone{" "}
+            </span>
+          </h3>
+        )}
         {window.innerWidth >= 868 && (
           <input
             type="text"
