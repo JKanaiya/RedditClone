@@ -155,7 +155,6 @@ function PostComponent({ post }: { post: Post }) {
     }
   });
 
-  debugger;
   const userImg =
     post.user.profileImageUrl &&
     supabase.storage
@@ -170,7 +169,12 @@ function PostComponent({ post }: { post: Post }) {
 
   return (
     <div className={postStyle.section}>
-      {selectedPost && <IoClose onClick={() => toggleSelectedPost(null)} />}
+      {selectedPost && (
+        <IoClose
+          style={{ color: "oklch(0.5845 0.2024 35.53)", width: 25, height: 25 }}
+          onClick={() => toggleSelectedPost(null)}
+        />
+      )}
       <div
         onClick={() => setSelectedPost(post)}
         className={postStyle.component}

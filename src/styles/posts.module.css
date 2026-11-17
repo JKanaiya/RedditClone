@@ -1,0 +1,16 @@
+.section {
+  min-width: 50%;
+  max-width: 60%;
+  display: flex;
+  max-height: 90dvh;
+  overflow: scroll;
+  scrollbar-width: none;
+  flex-direction: column;
+}
+
+@media screen and (max-width: 800px) {
+  .section {
+    max-width: 100dvw;
+    min-width: 85%;
+  }
+}

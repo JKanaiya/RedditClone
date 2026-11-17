@@ -57,7 +57,7 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
 
   return (
     <aside className={usersAside.column}>
-      <h4>Following</h4>
+      <h3>Following</h3>
       {users &&
         users
           .filter((foll: User) => foll.id == user?.following.id)
@@ -66,10 +66,16 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
               <p>{user.name}</p>
             </li>
           ))}
-      <h4>Users</h4>
+      <hr style={{ height: 2, border: 0, background: "#333" }} />
+      <h3>Users</h3>
       {users &&
         users.map((u: User) => (
-          <li>
+          <li
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
             <p onClick={() => setSelectedUser(u)}>{u.name}</p>
             {canFollow(u) && (
               <RiUserFollowFill onClick={() => sendFollowRequest(u.email)} />

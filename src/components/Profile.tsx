@@ -131,6 +131,17 @@ function Profile({
     }
   };
 
+  debugger;
+  const userFollowing = () => {
+    if (loggedInUser?.following.length != 0) {
+      for (let foll in loggedInUser?.following) {
+        if (foll.id == loggedInUser.id) {
+          return true;
+        } else return false;
+      }
+    }
+  };
+
   // TODO figure this out
   const userImg =
     user.profileImageUrl != null &&
@@ -145,7 +156,7 @@ function Profile({
   const isSelected = (section: string) => section == selectedSection;
 
   const followingWithRequests = (user: User) => {
-    if (user.followRequests) {
+    if (user.followRequests && user.id == loggedInUser.id) {
       return (
         <div>
           {user.followRequests.map((u) => (
@@ -177,66 +188,110 @@ function Profile({
   };
 
   return (
-    <div>
+    <div className={profile.page}>
       <section className={profile.userBar}>
-        <IoMdCloseCircleOutline onClick={() => toggleSelectedUser(null)} />
-        <label htmlFor="upload file">
-          {userImg.data != null ? (
-            <div
-              style={{
-                fontSize: "17.5px",
-                minWidth: 20,
-                minHeight: 20,
-                backgroundSize: "cover",
-                borderRadius: "50%",
-                backgroundImage: `url(${userImg.data.publicUrl})`,
-              }}
-            />
-          ) : (
-            <CgProfile />
-          )}
-          <FiEdit2 />
-        </label>
-        <input
-          id="upload file"
-          type="file"
-          name="uploaded_file"
-          onChange={updateProfileImage}
-          placeholder=""
-          style={{ display: "none" }}
+        <IoClose
+          style={{ color: "oklch(0.5845 0.2024 35.53)", width: 25, height: 25 }}
+          onClick={() => toggleSelectedUser(null)}
         />
-        {editing ? (
-          <form action={updateUserName}>
-            <input type="text" name="editedName" defaultValue={user.name} />
-            <button type="submit" style={{ display: "flex" }}>
-              <FaCheck className={icons.edit} />
-            </button>
-          </form>
+        {user.id == loggedInUser.id ? (
+          <div className={profile.userContainer}>
+            <label htmlFor="upload file">
+              {userImg.data != null ? (
+                <div
+                  className={profile.editImage}
+                  style={{
+                    backgroundImage: `url(${userImg.data.publicUrl})`,
+                  }}
+                >
+                  <FiEdit2 />
+                </div>
+              ) : (
+                <CgProfile className={profile.editImage} />
+              )}
+            </label>
+            <input
+              id="upload file"
+              type="file"
+              name="uploaded_file"
+              onChange={updateProfileImage}
+              placeholder=""
+              style={{ display: "none" }}
+            />
+            {editing ? (
+              <form action={updateUserName}>
+                <input type="text" name="editedName" defaultValue={user.name} />
+                <button type="submit" style={{ display: "flex" }}>
+                  <FaCheck className={icons.edit} />
+                </button>
+              </form>
+            ) : (
+              <h3>uc/{user.name}</h3>
+            )}
+            {user.id == loggedInUser!.id && (
+              <span onClick={toggleEditing} className={icons.commentEdit}>
+                <FiEdit2 />
+              </span>
+            )}
+          </div>
         ) : (
-          <h3>uc/{user.name}</h3>
-        )}
-        {user.id == loggedInUser!.id && (
-          <span onClick={toggleEditing} className={icons.commentEdit}>
-            <FiEdit2 />
-          </span>
+          <div className={profile.bar}>
+            <div className={profile.userContainer}>
+              {userImg.data != null ? (
+                <div
+                  className={profile.nonUserProfileImage}
+                  style={{
+                    backgroundImage: `url(${userImg.data.publicUrl})`,
+                  }}
+                >
+                  <FiEdit2 />
+                </div>
+              ) : (
+                <CgProfile className={profile.nonUserProfileImage} />
+              )}
+              <h3>uc/{user.name}</h3>
+            </div>
+            {!userFollowing() ? (
+              <button className={profile.followButton}>Follow</button>
+            ) : (
+              <button
+                className={profile.followButton}
+                style={{ backgroundColor: "oklch(0.3109 0.0131 229.38)" }}
+              >
+                Following
+              </button>
+            )}
+          </div>
         )}
       </section>
       {window.innerWidth < 800 && (
         <div className={profile.sectionSelection}>
           <h4
-            style={{ color: isSelected("posts") ? "orange" : "black" }}
+            style={{
+              color: isSelected("posts")
+                ? "oklch(0.5845 0.2024 35.53)"
+                : "black",
+            }}
             onClick={() => setSelectedSection("posts")}
           >
             Posts
           </h4>
           <h4
-            style={{ color: isSelected("following") ? "orange" : "black" }}
+            style={{
+              color: isSelected("following")
+                ? "oklch(0.5845 0.2024 35.53)"
+                : "black",
+            }}
             onClick={() => setSelectedSection("following")}
           >
             Following
           </h4>
           <h4
-            style={{ color: isSelected("followers") ? "orange" : "black" }}
+            style={{
+              color: isSelected("followers")
+                ? "oklch(0.5845 0.2024 35.53)"
+                : "black",
+            }}
             onClick={() => setSelectedSection("followers")}
           >
             Followers
@@ -264,8 +319,18 @@ function Profile({
         )
       ) : (
         <div className={profile.container}>
-          <h4>Posts</h4>
+          <aside className={profile.following}>
+            <h4>Following</h4>
+            {user.following.map((u) => (
+              <li>
+                <p>Name: {u.name}</p>
+                <p>Email: {u.email}</p>
+                <RiUserUnfollowFill onClick={() => unfollowUser(u.id)} />
+              </li>
+            ))}
+          </aside>
           <section className={profile.posts}>
+            <h4>Posts</h4>
             {loggedInUser.id == user.id
               ? user.posts.map((post) => (
                   <>
@@ -278,16 +343,6 @@ function Profile({
                 ))
               : user.posts.map((post) => <PostComponent post={post} />)}
           </section>
-          <aside className={profile.following}>
-            <h4>Following</h4>
-            {user.following.map((u) => (
-              <li>
-                <p>Name: {u.name}</p>
-                <p>Email: {u.email}</p>
-                <RiUserUnfollowFill onClick={() => unfollowUser(u.id)} />
-              </li>
-            ))}
-          </aside>
           <aside className={profile.followers}>
             <h4>Followers</h4>
             {user.followers.map((u) => (

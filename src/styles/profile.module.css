@@ -5,18 +5,78 @@
   min-width: 80dvw;
 }
 
-.container {
-  min-width: 30dvw;
+.userBar {
+  min-height: 20dvh;
+  max-width: 40dvw;
+  min-width: 40dvw;
+}
+
+.page {
   display: flex;
-  position: absolute;
-  border-radius: 20px;
-  bottom: 2%;
   flex-direction: column;
-  row-gap: 20px;
-  justify-content: center;
   align-items: center;
+}
+
+.image {
+  height: 80%;
+  display: flex;
+}
+
+.image svg {
+  height: 30px;
+  width: 30px;
+}
+
+.image > div {
+  height: 100px;
+  width: 100px;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 5%;
+  align-items: center;
+}
+
+.posts {
+  max-height: 70dvh;
+  overflow: scroll;
+  min-width: 40dvw;
+  scrollbar-width: none;
+  padding-top: 2%;
+}
+.posts h4 {
+  margin-bottom: 30px;
+}
+
+.container {
+  display: flex;
+  border-radius: 20px;
+  flex-direction: row;
+  /* min-width: 60dvw; */
+  row-gap: 20px;
+  min-width: 90dvw;
+  justify-content: space-between;
+  /* align-items: center; */
   min-height: 50dvh;
-  background-color: oklch(0.3176 0.0789 266.53);
+}
+
+.container aside {
+  min-width: 20%;
+  padding: 2%;
+}
+
+.followButton {
+  composes: secondaryContainer from "../colors.module.css";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  padding: 2%;
+  max-height: 40px;
+  width: 100px;
 }
 
 .container form {
@@ -74,10 +134,24 @@
   display: flex;
 }
 
+.nonUserProfileImage {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-position: center;
+  background-size: cover;
+}
+
+.userContainer {
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+}
+
 .editImage {
   color: transparent;
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background-blend-mode: multiply;
   background-position: center;
@@ -100,11 +174,11 @@
   position: absolute;
   left: auto;
   top: auto;
-  height: 200px;
-  width: 200px;
+  height: 100px;
+  width: 100px;
   display: inline-block;
-  padding-top: 4.5em;
-  padding-bottom: 4.5em;
+  padding-top: 3em;
+  padding-bottom: 3em;
 }
 
 .editImage button {

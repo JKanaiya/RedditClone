@@ -15,10 +15,8 @@
 }
 
 .container aside {
-  min-width: 22%;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .subreddits {
@@ -31,13 +29,26 @@
 .sidebar {
   position: absolute;
   border: 1px solid black;
-  left: 0;
-  background-color: gray;
-  top: 0;
+  min-width: 40dvw;
+  left: 01%;
+  composes: bgColor from "../colors.module.css";
+  top: 1%;
+  padding: 2%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8%;
+  max-height: 70dvh;
   z-index: 50;
 }
 
+.sidebar aside {
+  display: flex;
+  flex-direction: column;
+}
+
 .sidebarClose {
+  width: 25px;
+  height: 25px;
   position: absolute;
   right: 10px;
   top: 10px;
@@ -51,4 +62,9 @@
   min-width: 50dvw;
   height: 50dvh;
   background-color: gray;
+}
+@media screen and (max-width: 800px) {
+  .container aside {
+    max-width: 40dvw;
+  }
 }

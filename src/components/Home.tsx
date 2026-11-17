@@ -118,24 +118,8 @@ function Home() {
       <Nav searchPosts={searchPosts} toggleSideBar={toggleSideBar} />
       <section
         className={home.container}
-        style={{ filter: focus.active ? "blur(5px)" : "none" }}
+        style={{ filter: focus.active || sideBarOpen ? "blur(5px)" : "none" }}
       >
-        {window.innerWidth < 868 && sideBarOpen && (
-          <aside className={home.sidebar}>
-            <IoClose
-              onClick={() => toggleSideBar()}
-              className={home.sidebarClose}
-            />
-            {subreddits &&
-              subreddits.map((subreddit: SubReddit) => (
-                <li onClick={() => setSelectedSubreddit(subreddit)}>
-                  <p>{subreddit.name}</p>
-                </li>
-              ))}
-            <Users setSelectedUser={setSelectedUser} />
-          </aside>
-        )}
-
         {/* <div> */}
         {/*   <IoIosAddCircleOutline */}
         {/*     onClick={() => toggleFocus({ active: true, post: null })} */}
@@ -180,6 +164,31 @@ function Home() {
           <Users setSelectedUser={setSelectedUser} />
         )}
       </section>
+      {window.innerWidth < 868 && sideBarOpen && (
+        <aside className={home.sidebar} style={{ minWidth: "50dvw" }}>
+          <IoClose
+            onClick={() => toggleSideBar()}
+            className={home.sidebarClose}
+            style={{ color: "oklch(0.5845 0.2024 35.53)" }}
+          />
+          <h3>Subreddits</h3>
+          {subreddits &&
+            subreddits.map((subreddit: SubReddit) => (
+              <li
+                onClick={() => setSelectedSubreddit(subreddit)}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  overflow: "scroll",
+                }}
+              >
+                <p>rc/{subreddit.name}</p>
+              </li>
+            ))}
+          <hr style={{ height: 2, border: 0, background: "#333" }} />
+          <Users setSelectedUser={setSelectedUser} />
+        </aside>
+      )}
       {focus.active && (
         <Focus
           editingPost={focus.post}

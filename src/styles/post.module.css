@@ -1,0 +1,61 @@
+.section {
+  min-width: 50%;
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.component {
+  min-height: 10dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  row-gap: 10px;
+  padding: 1.5%;
+}
+
+.image {
+  height: 400px;
+}
+
+.h5 {
+  composes: softerWhite from "../colors.module.css";
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+}
+
+.metaData {
+  display: flex;
+  font:
+    0.7rem "Ubuntu",
+    sans-serif;
+  font-weight: bold;
+  justify-content: space-between;
+}
+
+.metaData svg {
+  height: 17.5px;
+  width: 17.5px;
+}
+
+.metaDataContainer {
+  composes: containerLow from "../colors.module.css";
+  height: 30px;
+  min-width: 50px;
+  padding: 2%;
+  border-radius: 20px;
+  align-items: center;
+  justify-content: space-around;
+  column-gap: 4px;
+  display: flex;
+}
+
+@media screen and (max-width: 800px) {
+  .section {
+    max-width: 100dvw;
+    min-width: 90%;
+  }
+}

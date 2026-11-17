@@ -1,6 +1,9 @@
 .column {
-  border: 1px solid black;
   padding: 1%;
+  overflow: scroll;
+  scrollbar-width: none;
+  display: flex;
+  align-items: left;
   min-width: 15dvw;
 }
 
