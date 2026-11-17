@@ -132,7 +132,7 @@ function Focus({
                     backgroundImage:
                       postImg.data != null
                         ? `url(${postImg.data.publicUrl})`
-                        : "url('/assets/images/generic_profile.jpg')",
+                        : "url('/assets/images/generic_profile.png')",
                   }}
                 >
                   <img
@@ -192,7 +192,7 @@ function Focus({
                 backgroundImage:
                   postImg.data != null
                     ? `url(${postImg.data.publicUrl})`
-                    : "url('/assets/images/generic_profile.jpg')",
+                    : "url('/assets/images/generic_profile.png')",
               }}
             >
               {/* <img src={userImg.data.publicUrl} style={{ borderRadius: "50%" }} /> */}

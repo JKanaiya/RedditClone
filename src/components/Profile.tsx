@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { CgProfile } from "react-icons/cg";
 import { FaRegCircleCheck, FaCheck } from "react-icons/fa6";
 import { FiEdit2 } from "react-icons/fi";
 import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
@@ -180,19 +181,21 @@ function Profile({
       <section className={profile.userBar}>
         <IoMdCloseCircleOutline onClick={() => toggleSelectedUser(null)} />
         <label htmlFor="upload file">
-          <div
-            className={profile.editImage}
-            // this section needs to wait for the existence of an actual profile image
-            style={{
-              backgroundImage:
-                userImg.data != null
-                  ? `url(${userImg.data.publicUrl})`
-                  : "url('/assets/images/generic_profile.jpg')",
-            }}
-          >
-            {/* <img src={userImg.data.publicUrl} style={{ borderRadius: "50%" }} /> */}
-            <FiEdit2 />
-          </div>
+          {userImg.data != null ? (
+            <div
+              style={{
+                fontSize: "17.5px",
+                minWidth: 20,
+                minHeight: 20,
+                backgroundSize: "cover",
+                borderRadius: "50%",
+                backgroundImage: `url(${userImg.data.publicUrl})`,
+              }}
+            />
+          ) : (
+            <CgProfile />
+          )}
+          <FiEdit2 />
         </label>
         <input
           id="upload file"

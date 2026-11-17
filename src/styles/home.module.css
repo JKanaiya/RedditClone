@@ -4,12 +4,21 @@
   composes: bgColor from "../colors.module.css";
   flex-direction: column;
   composes: softWhite from "../colors.module.css";
+  max-width: 100dvw;
   min-height: 100dvh;
 }
+
 .container {
   display: flex;
   justify-content: space-around;
   min-height: 90dvh;
+}
+
+.container aside {
+  min-width: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .subreddits {

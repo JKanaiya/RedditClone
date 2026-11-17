@@ -70,35 +70,58 @@ function Comment({
       console.log(`Error deleting comment: ${e}`);
     }
   };
+
+  const hightlightComment = () => {
+    if (!selectedComment) return;
+    else if (selectedComment.id === comment.id) {
+      console.log("bla");
+      return true;
+    }
+    return false;
+  };
+
   return (
     <div
       style={{
         paddingLeft: offset,
-        backgroundColor:
-          selectedComment && selectedComment.id == comment.id
-            ? "green"
-            : "white",
+        borderRadius: 10,
+        padding: "1.5%",
       }}
     >
-      <h5
+      <div
         style={{
-          fontStyle: comment.text === deletedString ? "italic" : "none",
+          border: hightlightComment()
+            ? "1px solid oklch(0.5845 0.2024 35.53)"
+            : "none",
+          padding: "1.5%",
+          paddingLeft: "2%",
+          borderLeft: `2px solid oklch(0.5845 0.2024  ${35.53 + offset * 0.1})`,
         }}
       >
-        <p>uc/{comment.User.name}</p>
-        {comment.text}
-        {comment.edited && comment.text != deletedString && (
-          <p style={{ fontStyle: "italic" }}>Edited</p>
-        )}
-      </h5>
-      <Votes post={null} comment={comment} />
-      <GoReply onClick={() => toggleSelectedComment(comment)} />
-      {user!.id == comment.userId && comment.text != deletedString && (
-        <MdDeleteOutline onClick={() => deleteComment()} />
-      )}
-      {editable && (
-        <MdOutlineEdit onClick={() => toggleEditingComment(comment)} />
-      )}
+        <h5
+          style={{
+            fontStyle: comment.text === deletedString ? "italic" : "none",
+          }}
+        >
+          <p>uc/{comment.User.name}</p>
+          {comment.text}
+          {comment.edited && comment.text != deletedString && (
+            <p style={{ fontStyle: "italic" }}>Edited</p>
+          )}
+        </h5>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Votes post={null} comment={comment} />
+          <div style={{ display: "flex", columnGap: 10 }}>
+            <GoReply onClick={() => toggleSelectedComment(comment)} />
+            {user!.id == comment.userId && comment.text != deletedString && (
+              <MdDeleteOutline onClick={() => deleteComment()} />
+            )}
+            {editable && (
+              <MdOutlineEdit onClick={() => toggleEditingComment(comment)} />
+            )}
+          </div>
+        </div>
+      </div>
       {comment.subComments &&
         comment.subComments.map((c: CommentType) => (
           <Comment

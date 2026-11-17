@@ -37,6 +37,7 @@ export type Post = {
   votes: Vote[] | [];
   comments: Comment[] | [];
   subRedditId: number;
+  subReddit: SubReddit;
   user: User;
 };
 export type Vote = {

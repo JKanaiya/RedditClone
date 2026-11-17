@@ -54,7 +54,7 @@ function Votes({
         userVote.positive == true ? (
           <>
             <BiSolidUpvote
-              style={{ color: "orange" }}
+              style={{ color: "oklch(0.5845 0.2024 35.53)" }}
               onClick={() => updateVote(true)}
             />
             <p>{votes}</p>
@@ -68,7 +68,7 @@ function Votes({
             <BiUpvote onClick={() => updateVote(true)} />
             <p>{votes}</p>
             <BiSolidUpvote
-              style={{ rotate: "180deg", color: "orange" }}
+              style={{ rotate: "180deg", color: "oklch(0.5845 0.2024 35.53)" }}
               onClick={() => updateVote(false)}
             />
           </>

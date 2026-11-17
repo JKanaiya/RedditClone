@@ -37,8 +37,12 @@
 }
 
 @media screen and (max-width: 800px) {
+  .container {
+    max-width: 100dvw;
+  }
   .input {
     width: 80%;
+    max-width: 90%;
     min-height: 30px;
     font-size: 12px;
     align-self: center;

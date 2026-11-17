@@ -1,9 +1,13 @@
 import { useContext, useEffect, useState } from "react";
+import { CgProfile } from "react-icons/cg";
+import { RiSubredditFill } from "react-icons/ri";
 import { socket } from "../socket";
 import { MdOutlineEdit } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { IoIosAddCircleOutline } from "react-icons/io";
+import { FaRegComment } from "react-icons/fa";
 import type { Comment as CommentType, Post } from "../App";
+import postStyle from "../styles/post.module.css";
 import useSWR, { mutate } from "swr";
 import ApiCall from "../apiCalls.ts";
 import PostContext from "../PostContext.tsx";
@@ -12,6 +16,7 @@ import Comments from "./Comments.tsx";
 import Votes from "./Votes.tsx";
 import UserContext from "../UserContext.tsx";
 import { supabase } from "../supabase.ts";
+import SubRedditContext from "../SubredditContext.tsx";
 
 function PostComponent({ post }: { post: Post }) {
   const voteValues = post.votes.map((vote) => (vote ? 1 : -1));
@@ -42,8 +47,11 @@ function PostComponent({ post }: { post: Post }) {
     };
   }, [selectedPost]);
 
-  const toggleSelectedComment = (comment: CommentType | null) =>
+  const toggleSelectedComment = (comment: CommentType | null) => {
+    console.log(comment);
+
     setSelectedComment(comment);
+  };
 
   const toggleEditingComment = (comment: CommentType | null) =>
     setEditingCommentId(comment ? comment.id : null);
@@ -147,24 +155,78 @@ function PostComponent({ post }: { post: Post }) {
     }
   });
 
+  debugger;
+  const userImg =
+    post.user.profileImageUrl &&
+    supabase.storage
+      .from("UserData")
+      .getPublicUrl(
+        post.user.email + "/profileImage/" + post.user.profileImageUrl!,
+      );
+
   const postImg =
     post?.postImageUrl != null &&
     supabase.storage.from("UserData").getPublicUrl(post.postImageUrl);
 
   return (
-    <div>
+    <div className={postStyle.section}>
       {selectedPost && <IoClose onClick={() => toggleSelectedPost(null)} />}
-      <div onClick={() => setSelectedPost(post)}>
+      <div
+        onClick={() => setSelectedPost(post)}
+        className={postStyle.component}
+      >
+        <div className={postStyle.details}>
+          <h5
+            style={{ display: "flex", alignItems: "center", columnGap: "5px" }}
+            className={postStyle.h5}
+          >
+            <RiSubredditFill style={{ fontSize: "17.5px" }} />
+            rc/{post.subReddit.name}
+          </h5>
+          <h5
+            style={{ display: "flex", alignItems: "center", columnGap: "5px" }}
+            className={postStyle.h5}
+          >
+            {userImg && userImg.data != null ? (
+              <div
+                style={{
+                  fontSize: "17.5px",
+                  minWidth: 20,
+                  minHeight: 20,
+                  backgroundSize: "cover",
+                  borderRadius: "50%",
+                  backgroundImage: `url(${userImg.data.publicUrl})`,
+                }}
+              />
+            ) : (
+              <CgProfile />
+            )}
+            uc/{post.user?.name}
+          </h5>
+        </div>
         <h4>{post.title}</h4>
-        <p>{post.text}</p>
+        {selectedPost && <p>{post.text}</p>}
         {/* {post.user.id == user.id && <MdOutlineEdit />} */}
         {postImg && (
           <div
-            style={{ backgroundImage: `url(${postImg.data.publicUrl})` }}
+            className={postStyle.image}
+            style={{
+              backgroundImage: `url(${postImg.data.publicUrl})`,
+              backgroundSize: "cover",
+            }}
           ></div>
         )}
 
-        <Votes post={post} comment={null} />
+        <div className={postStyle.metaData}>
+          {/* these would have a container that is a lighter color, it should follow  */}
+          {/* that they would have the same css attributer */}
+          <span className={postStyle.metaDataContainer}>
+            <Votes post={post} comment={null} />
+          </span>
+          <span className={postStyle.metaDataContainer}>
+            <FaRegComment /> {post.comments.length}
+          </span>
+        </div>
         {/* {might need to kick selectedPost in the cases where post is being showed outside of a Posts component} */}
         {selectedPost && post.comments && (
           <Comments
@@ -173,6 +235,9 @@ function PostComponent({ post }: { post: Post }) {
             toggleEditingComment={toggleEditingComment}
             toggleSelectedComment={toggleSelectedComment}
           />
+        )}
+        {!selectedPost && (
+          <hr style={{ height: 2, border: 0, background: "#333" }} />
         )}
       </div>
       {!isLoggedIn ? (

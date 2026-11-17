@@ -6,6 +6,7 @@ import UserContext from "../UserContext.tsx";
 import { useNavigate } from "react-router";
 import useSWR from "swr";
 import PostComponent from "./Post.tsx";
+import postsStyle from "../styles/posts.module.css";
 import ApiCall from "../apiCalls.ts";
 import SubRedditContext from "../SubredditContext.tsx";
 
@@ -55,7 +56,7 @@ function Posts({
 
   if (subId != undefined) {
     return (
-      <div>
+      <div className={postsStyle.section}>
         {subName && (
           <div>
             <IoClose onClick={() => setSelectedSubreddit(null)} />
@@ -86,7 +87,7 @@ function Posts({
       }
     });
     return (
-      <div>
+      <div className={postsStyle.section}>
         {filter
           ? follPosts
               .filter(
@@ -102,7 +103,7 @@ function Posts({
     );
   } else {
     return (
-      <div>
+      <div className={postsStyle.section}>
         {filter
           ? posts
               .filter(

@@ -120,7 +120,7 @@ function Home() {
         className={home.container}
         style={{ filter: focus.active ? "blur(5px)" : "none" }}
       >
-        {window.innerWidth < 800 && sideBarOpen && (
+        {window.innerWidth < 868 && sideBarOpen && (
           <aside className={home.sidebar}>
             <IoClose
               onClick={() => toggleSideBar()}
@@ -136,13 +136,13 @@ function Home() {
           </aside>
         )}
 
-        <div>
-          <IoIosAddCircleOutline
-            onClick={() => toggleFocus({ active: true, post: null })}
-          />
-        </div>
+        {/* <div> */}
+        {/*   <IoIosAddCircleOutline */}
+        {/*     onClick={() => toggleFocus({ active: true, post: null })} */}
+        {/*   /> */}
+        {/* </div> */}
 
-        {window.innerWidth >= 800 && !selectedUser && (
+        {window.innerWidth >= 868 && !selectedUser && (
           <aside className={home.subreddits}>
             {subreddits &&
               subreddits.map((subreddit: SubReddit) => (
@@ -175,8 +175,8 @@ function Home() {
             filter={filter}
           />
         )}
-        {/* NOTE: this and the above aside would render in a sidebar if the screenwidth is less than 800 */}
-        {window.innerWidth >= 800 && !selectedUser && (
+        {/* NOTE: this and the above aside would render in a sidebar if the screenwidth is less than 868 */}
+        {window.innerWidth >= 868 && !selectedUser && (
           <Users setSelectedUser={setSelectedUser} />
         )}
       </section>

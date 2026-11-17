@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import type { Comment as CommentType } from "../App";
 import Comment from "./Comment";
+import commentsStyle from "../styles/comments.module.css";
 import { useContext, useEffect } from "react";
 import { socket } from "../socket";
 import PostContext from "../PostContext";
@@ -55,19 +56,14 @@ function Comments({
   if (error) nav("/error");
 
   return (
-    <div>
+    <div className={commentsStyle.section}>
       {comments &&
         filtered.map((comment: CommentType) => (
           <Comment
+            key={comment.id}
             comment={comment}
             offset={25}
-            selectedComment={
-              selectedComment
-                ? comments.find(
-                    (com: CommentType) => com.id == selectedComment.id,
-                  )
-                : selectedComment
-            }
+            selectedComment={selectedComment}
             toggleEditingComment={toggleEditingComment}
             toggleSelectedComment={toggleSelectedComment}
           />
