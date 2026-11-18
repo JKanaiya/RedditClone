@@ -3,6 +3,7 @@
   overflow: scroll;
   scrollbar-width: none;
   display: flex;
+  flex-direction: column;
   align-items: left;
   min-width: 15dvw;
 }

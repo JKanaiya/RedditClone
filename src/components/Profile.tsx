@@ -6,7 +6,7 @@ import { MdOutlineEdit, MdDeleteOutline } from "react-icons/md";
 import { RiUserUnfollowFill } from "react-icons/ri";
 import { IoClose } from "react-icons/io5";
 import { IoMdCloseCircleOutline } from "react-icons/io";
-import type { User } from "../App";
+import type { Post, User } from "../App";
 import profile from "../styles/profile.module.css";
 import icons from "../styles/icons.module.css";
 import PostComponent from "./Post";
@@ -28,6 +28,7 @@ function Profile({
   const [selectedSection, setSelectedSection] = useState<string | null>(
     "posts",
   );
+  const deletedString = "Post has been deleted.";
   const [editing, setEditing] = useState(false);
 
   const specEmail = localStorage.getItem("spec_email");
@@ -131,7 +132,6 @@ function Profile({
     }
   };
 
-  debugger;
   const userFollowing = () => {
     if (loggedInUser?.following.length != 0) {
       for (let foll in loggedInUser?.following) {
@@ -141,6 +141,9 @@ function Profile({
       }
     }
   };
+
+  const editablePost = (post: Post) =>
+    post.text != deletedString && post.title != deletedString;
 
   // TODO figure this out
   const userImg =
@@ -270,7 +273,7 @@ function Profile({
             style={{
               color: isSelected("posts")
                 ? "oklch(0.5845 0.2024 35.53)"
-                : "black",
+                : "oklch(85% 0 90)",
             }}
             onClick={() => setSelectedSection("posts")}
           >
@@ -280,7 +283,7 @@ function Profile({
             style={{
               color: isSelected("following")
                 ? "oklch(0.5845 0.2024 35.53)"
-                : "black",
+                : "oklch(85% 0 90)",
             }}
             onClick={() => setSelectedSection("following")}
           >
@@ -290,7 +293,7 @@ function Profile({
             style={{
               color: isSelected("followers")
                 ? "oklch(0.5845 0.2024 35.53)"
-                : "black",
+                : "oklch(85% 0 90)",
             }}
             onClick={() => setSelectedSection("followers")}
           >
@@ -304,16 +307,46 @@ function Profile({
           followingWithRequests(user)
         ) : selectedSection == "following" ? (
           user.following.map((u) => (
-            <li>
-              <p>Name: {u.name}</p>
-              <p>Email: {u.email}</p>
-              <RiUserUnfollowFill />
+            <li style={{ fontWeight: "bold" }}>
+              <span
+                style={{
+                  color: "oklch(0.5845 0.2024 35.53)",
+                }}
+              >
+                uc/
+              </span>
+              {u.name}
+              {user.id == loggedInUser.id && <RiUserUnfollowFill />}
             </li>
           ))
         ) : (
           <section className={profile.posts}>
             {user.posts.map((post) => (
-              <PostComponent post={post} />
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <PostComponent post={post} />
+                <span
+                  style={{
+                    minHeight: 100,
+                    display: "flex",
+                    fontSize: "1.3rem",
+                    flexDirection: "column",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <MdOutlineEdit
+                    onClick={() => toggleFocus({ active: true, post: post })}
+                  />
+                  {editablePost(post) && (
+                    <MdDeleteOutline onClick={() => deletePost(post.id)} />
+                  )}
+                </span>
+              </span>
             ))}
           </section>
         )
@@ -322,10 +355,16 @@ function Profile({
           <aside className={profile.following}>
             <h4>Following</h4>
             {user.following.map((u) => (
-              <li>
-                <p>Name: {u.name}</p>
-                <p>Email: {u.email}</p>
-                <RiUserUnfollowFill onClick={() => unfollowUser(u.id)} />
+              <li style={{ fontWeight: "bold" }}>
+                <span
+                  style={{
+                    color: "oklch(0.5845 0.2024 35.53)",
+                  }}
+                >
+                  uc/
+                </span>
+                {u.name}
+                {user.id == loggedInUser.id && <RiUserUnfollowFill />}
               </li>
             ))}
           </aside>
@@ -333,22 +372,58 @@ function Profile({
             <h4>Posts</h4>
             {loggedInUser.id == user.id
               ? user.posts.map((post) => (
-                  <>
+                  <span className={profile.postContainer}>
                     <PostComponent post={post} />
-                    <MdOutlineEdit
-                      onClick={() => toggleFocus({ active: true, post: post })}
-                    />
-                    <MdDeleteOutline onClick={() => deletePost(post.id)} />
-                  </>
+                    <span
+                      style={{
+                        minHeight: 100,
+                        display: "flex",
+                        fontSize: "1.3rem",
+                        flexDirection: "column",
+                        justifyContent: "space-around",
+                      }}
+                    >
+                      {editablePost(post) && (
+                        <>
+                          <MdDeleteOutline
+                            onClick={() => deletePost(post.id)}
+                          />
+                          <MdOutlineEdit
+                            onClick={() =>
+                              toggleFocus({ active: true, post: post })
+                            }
+                          />
+                        </>
+                      )}
+                    </span>
+                  </span>
                 ))
-              : user.posts.map((post) => <PostComponent post={post} />)}
+              : user.posts.map((post) => (
+                  <span
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <PostComponent post={post} />
+                  </span>
+                ))}
           </section>
           <aside className={profile.followers}>
             <h4>Followers</h4>
             {user.followers.map((u) => (
-              <li>
-                <p>Name: {u.name}</p>
-                <p>Email: {u.email}</p>
+              <li style={{ fontWeight: "bold" }}>
+                <p>
+                  <span
+                    style={{
+                      color: "oklch(0.5845 0.2024 35.53)",
+                    }}
+                  >
+                    uc/
+                  </span>
+                  {u.name}
+                </p>
               </li>
             ))}
           </aside>

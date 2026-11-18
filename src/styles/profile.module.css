@@ -91,7 +91,7 @@
   padding: 2%;
   border: none;
   border-radius: 5px;
-  font-family: "Ubuntu", sans-serif;
+  font-family: Ubuntu, sans-serif;
 }
 
 .container img {
@@ -185,13 +185,32 @@
   min-width: 40px;
 }
 
+.postContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.postContainer > div {
+  width: 90%;
+}
+
 @media screen and (max-width: 800px) {
   .container {
     min-width: 60dvw;
   }
+  .userContainer {
+    justify-content: space-around;
+  }
 
+  .posts {
+    width: 100%;
+  }
+  .userBar {
+    width: 100%;
+    max-width: 80dvw;
+  }
   .editImage {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
   }
 }

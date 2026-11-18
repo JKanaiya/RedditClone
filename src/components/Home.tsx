@@ -128,6 +128,7 @@ function Home() {
 
         {window.innerWidth >= 868 && !selectedUser && (
           <aside className={home.subreddits}>
+            <h3>Subreddits</h3>
             {subreddits &&
               subreddits.map((subreddit: SubReddit) => (
                 <li onClick={() => setSelectedSubreddit(subreddit)}>

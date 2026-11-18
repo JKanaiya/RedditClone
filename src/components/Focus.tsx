@@ -108,24 +108,39 @@ function Focus({
       defaultValues: { text: editingPost?.text, title: editingPost.title },
     });
     return (
-      <div className={home.focus}>
-        <IoClose
-          style={{ color: "green" }}
-          onClick={() => toggleFocus({ active: false, post: null })}
-        />
-        <h2>Editing Post</h2>
-        <form action={updatePost}>
+      <div
+        className={home.focus}
+        style={{ height: editingPost.postImageUrl ? "80dvh" : "45dvh" }}
+      >
+        <div className={home.focusHeader}>
+          <h4>Editing Post</h4>
+          <IoClose onClick={() => toggleFocus({ active: false, post: null })} />
+        </div>
+        <h5 className={home.focusMetaData}>
+          r
+          <span style={{ color: "oklch(0.5845 0.2024 35.53)", margin: "none" }}>
+            c/
+          </span>
+          {editingPost.subReddit.name}
+        </h5>
+        <form
+          action={updatePost}
+          style={{ minHeight: editingPost.postImageUrl ? "80%" : 0 }}
+        >
           <label>
-            Title:
-            <input type="text" {...register("title")} />
-          </label>
-          <label>
-            Text:
-            <input type="text" {...register("text")} />
+            <span>
+              Title:
+              <br />
+            </span>
+            <input
+              type="text"
+              {...register("title")}
+              className={home.focusTitle}
+            />
           </label>
           {editingPost.postImageUrl && (
             <>
-              <label htmlFor="upload image">
+              <label htmlFor="upload image" className={home.focusEditImage}>
                 <div
                   // this section needs to wait for the existence of an actual profile image
                   style={{
@@ -134,13 +149,7 @@ function Focus({
                         ? `url(${postImg.data.publicUrl})`
                         : "url('/assets/images/generic_profile.png')",
                   }}
-                >
-                  <img
-                    src={postImg.data.publicUrl}
-                    style={{ borderRadius: "50%" }}
-                  />
-                  <FiEdit2 />
-                </div>
+                ></div>
               </label>
               <input
                 id="upload image"
@@ -154,18 +163,33 @@ function Focus({
               />
             </>
           )}
-          <button type="submit">submit</button>
+          <label>
+            <span>
+              Text:
+              <br />
+            </span>
+            <input
+              type="text"
+              {...register("text")}
+              className={home.focusText}
+            />
+          </label>
+          <button
+            type="submit"
+            onClick={() => toggleFocus({ active: false, post: null })}
+          >
+            Submit
+          </button>
         </form>
       </div>
     );
   } else {
     return (
       <div className={home.focus}>
-        <IoClose
-          style={{ color: "green" }}
-          onClick={() => toggleFocus({ active: false, post: null })}
-        />
-        <h2>Create Post</h2>
+        <div className={home.focusHeader}>
+          <h2>Create Post</h2>
+          <IoClose onClick={() => toggleFocus({ active: false, post: null })} />
+        </div>
         <form action={createPost}>
           <label>
             Title:
@@ -207,7 +231,12 @@ function Focus({
             placeholder=""
             style={{ display: "none" }}
           />
-          <button type="submit">submit</button>
+          <button
+            type="submit"
+            onClick={() => toggleFocus({ active: false, post: null })}
+          >
+            Submit
+          </button>
         </form>
       </div>
     );
