@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { RiSendInsLine } from "react-icons/ri";
 import { CgProfile } from "react-icons/cg";
 import { RiSubredditFill } from "react-icons/ri";
 import { socket } from "../socket";
@@ -253,15 +254,19 @@ function PostComponent({ post }: { post: Post }) {
         </>
       ) : (
         selectedPost && (
-          <form action={editingCommentId ? editComment : addComment}>
+          <form
+            action={editingCommentId ? editComment : addComment}
+            className={postStyle.commentForm}
+          >
             <input
               type="text"
               name="comment"
               id=""
               placeholder="Share your thoughts"
+              className={postStyle.commentInput}
             />
-            <button type="submit">
-              <IoIosAddCircleOutline />
+            <button type="submit" className={postStyle.submitButton}>
+              <RiSendInsLine />
             </button>
           </form>
         )

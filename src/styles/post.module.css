@@ -2,6 +2,34 @@
   min-width: 50%;
 }
 
+.commentForm {
+  display: flex;
+  border-radius: 2px;
+}
+
+.commentInput {
+  border-radius: 5px;
+  border: none;
+  height: 40px;
+  width: 100%;
+  place-self: center;
+  composes: baseText from "./text.module.css";
+  border-radius: 12.5px;
+  background-color: oklch(0.3109 0.0131 229.38);
+  composes: softerWhite from "../colors.module.css";
+  padding-left: 1%;
+}
+
+.submitButton {
+  border-radius: 50%;
+  min-width: 40px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  composes: secondaryContainer from "../colors.module.css";
+}
+
 .details {
   display: flex;
   justify-content: space-between;

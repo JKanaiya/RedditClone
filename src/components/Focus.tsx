@@ -1,4 +1,5 @@
 import type { Post, SubReddit } from "../App";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import type { FocusType } from "./Home";
 import { FiEdit2 } from "react-icons/fi";
@@ -26,6 +27,34 @@ function Focus({
   const specEmail = localStorage.getItem("spec_email");
   const email = specEmail ? specEmail : localStorage.getItem("email");
 
+  const successNotify = (message: string) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
+  const errorNotify = (message: string) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
   const setPImgUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e.target);
 
@@ -43,10 +72,11 @@ function Focus({
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       } else {
+        successNotify("Updated post successfully");
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
+      errorNotify("Failed to update post!");
       console.log(`Error updating post: ${e}`);
     }
   };
@@ -71,9 +101,11 @@ function Focus({
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       } else {
+        successNotify("Created post successfully");
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
     } catch (e) {
+      errorNotify("Failed to create post!");
       console.log(`Error creating post: ${e}`);
     }
   };
@@ -91,8 +123,10 @@ function Focus({
           cacheControl: "3600",
         });
       if (error) {
+        errorNotify("Failed to update post!");
         console.log("Err" + error);
       } else {
+        successNotify("Updated post successfully");
         setPostImageUrl(editingPost!.postImageUrl);
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
@@ -238,6 +272,7 @@ function Focus({
             Submit
           </button>
         </form>
+        <ToastContainer />
       </div>
     );
   }

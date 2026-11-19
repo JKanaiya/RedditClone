@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import { CgProfile } from "react-icons/cg";
 import { FaRegCircleCheck, FaCheck } from "react-icons/fa6";
 import { FiEdit2 } from "react-icons/fi";
@@ -33,14 +34,44 @@ function Profile({
 
   const { user: loggedInUser, upsertUser } = useContext(UserContext);
 
+  const successNotify = (message: string) => {
+    toast.success(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
+  const errorNotify = (message: string) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
+  };
+
   const unfollowUser = async (otherUserId: number) => {
     try {
       const response = await ApiCall.unfollowUser(otherUserId);
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        successNotify("Unfollowed user!");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
+      errorNotify("Failed to unfollow user!");
       console.log(`Error unfollowing user: ${e}`);
     }
   };
@@ -50,9 +81,11 @@ function Profile({
       const response = await ApiCall.acceptFollowRequest(follReqId);
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        successNotify("Accepted follow request!");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
+      errorNotify("Failed to accept follow request!");
       console.log(`Error accpeting follow request: ${e}`);
     }
   };
@@ -62,9 +95,11 @@ function Profile({
       const response = await ApiCall.rejectFollowRequest(follReqId);
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        successNotify("Denied Follow Request!");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
+      errorNotify("Error rejecting follow request, nothing was changed!");
       console.log(`Error rejecting follow request, nothing was changed: ${e}`);
     }
   };
@@ -75,10 +110,11 @@ function Profile({
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       } else {
+        successNotify("Updated your user name!");
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
+      errorNotify("Failed to update your user name!");
       console.log(`Error updating user name: ${e}`);
     }
   };
@@ -89,11 +125,12 @@ function Profile({
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       } else {
+        successNotify("Deleted your post!");
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
-      console.log(`Error updating post: ${e}`);
+      errorNotify("Failed to delete post!");
+      console.log(`Error deleting post: ${e}`);
     }
   };
 
@@ -104,9 +141,10 @@ function Profile({
         throw new Error(`HTTP Error! Status: ${response.status}`);
       } else {
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
+        successNotify("Sent follow request!");
       }
     } catch (e) {
-      // errorNotify("Failed to add comment!");
+      errorNotify("Failed to send follow request!");
       console.log(`Error sending follow request: ${e}`);
     }
   };
@@ -126,6 +164,7 @@ function Profile({
     const response = await ApiCall.setProfileImage(`${newProfileImageUrl}`);
 
     if (response.status != 200) {
+      errorNotify("Failed to update profile image!");
       throw new Error(`HTTP Error! Status: ${response.status}`);
     } else {
       const { data, error } = await supabase.storage
@@ -138,6 +177,7 @@ function Profile({
             cacheControl: "3600",
           },
         );
+      successNotify("Successfully updated profile image!");
       const updatedUser = { ...user, profileImageUrl: newProfileImageUrl };
       error ? console.log("Err" + error) : upsertUser(updatedUser);
     }
@@ -510,6 +550,7 @@ function Profile({
           </aside>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }
