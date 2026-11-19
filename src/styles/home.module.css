@@ -52,7 +52,7 @@
 
 .focus {
   position: absolute;
-  /* max-height: 80dvh; */
+  max-height: 80dvh;
   left: 0;
   right: 0%;
   top: 0;

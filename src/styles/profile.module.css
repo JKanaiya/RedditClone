@@ -171,14 +171,15 @@
 }
 
 .editImage > svg {
+  z-index: 10000;
   position: absolute;
   left: auto;
   top: auto;
-  height: 100px;
-  width: 100px;
+  height: 105px;
+  width: 105px;
   display: inline-block;
-  padding-top: 3em;
-  padding-bottom: 3em;
+  padding-top: 2em;
+  padding-bottom: 2em;
 }
 
 .editImage button {

@@ -31,9 +31,6 @@ function Profile({
   const deletedString = "Post has been deleted.";
   const [editing, setEditing] = useState(false);
 
-  const specEmail = localStorage.getItem("spec_email");
-  const email = specEmail ? specEmail : localStorage.getItem("email");
-
   const { user: loggedInUser, upsertUser } = useContext(UserContext);
 
   const unfollowUser = async (otherUserId: number) => {
@@ -100,6 +97,20 @@ function Profile({
     }
   };
 
+  const sendFollowRequest = async (otherUserEmail: string) => {
+    try {
+      const response = await ApiCall.sendFollowRequest(otherUserEmail);
+      if (response.status != 200) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      } else {
+        mutate(import.meta.env.VITE_BACKEND_URL + "posts");
+      }
+    } catch (e) {
+      // errorNotify("Failed to add comment!");
+      console.log(`Error sending follow request: ${e}`);
+    }
+  };
+
   const updateProfileImage = async (e) => {
     const now = new Date();
     const newProfileImageUrl = now.toISOString();
@@ -107,7 +118,7 @@ function Profile({
     if (user.profileImageUrl) {
       const { data, error } = await supabase.storage
         .from("UserData")
-        .remove([`${email}/profileImage/${user.profileImageUrl}`]);
+        .remove([`${user.email}/profileImage/${user.profileImageUrl}`]);
 
       error ? console.log("Err" + error) : console.log("Data" + data);
     }
@@ -120,7 +131,7 @@ function Profile({
       const { data, error } = await supabase.storage
         .from("UserData")
         .upload(
-          `${email}/profileImage/${newProfileImageUrl}`,
+          `${user.email}/profileImage/${newProfileImageUrl}`,
           e.target.files[0],
           {
             contentType: "image/png",
@@ -135,7 +146,7 @@ function Profile({
   const userFollowing = () => {
     if (loggedInUser?.following.length != 0) {
       for (let foll in loggedInUser?.following) {
-        if (foll.id == loggedInUser.id) {
+        if (loggedInUser.following[foll].id == user.id) {
           return true;
         } else return false;
       }
@@ -150,7 +161,7 @@ function Profile({
     user.profileImageUrl != null &&
     supabase.storage
       .from("UserData")
-      .getPublicUrl(email + "/profileImage/" + user.profileImageUrl!);
+      .getPublicUrl(user.email + "/profileImage/" + user.profileImageUrl!);
 
   const toggleEditing = () => {
     setEditing(editing ? false : true);
@@ -161,32 +172,92 @@ function Profile({
   const followingWithRequests = (user: User) => {
     if (user.followRequests && user.id == loggedInUser.id) {
       return (
-        <div>
-          {user.followRequests.map((u) => (
-            <li>
-              <p>Name: {u.sender.name}</p>
-              <p>Email: {u.sender.email}</p>
-              <FaRegCircleCheck onClick={() => acceptFollowRequest(u.id)} />
-              <IoClose onClick={() => denyFollowRequest(u.id)} />
-            </li>
-          ))}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            marginTop: 20,
+          }}
+        >
+          {window.innerWidth > 868 && <h4>Followers</h4>}
           {user.followers.map((u) => (
             <li>
-              <p>Name: {u.name}</p>
-              <p>Email: {u.email}</p>
+              <p>
+                <span
+                  style={{
+                    color: "oklch(0.5845 0.2024 35.53)",
+                  }}
+                >
+                  uc/
+                </span>
+                {u.name}
+              </p>
+            </li>
+          ))}
+          <hr style={{ margin: "30px 0" }} />
+          <h4>Follow Requests</h4>
+          {user.followRequests.map((u) => (
+            <li
+              style={{
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <p>
+                <span
+                  style={{
+                    color: "oklch(0.5845 0.2024 35.53)",
+                  }}
+                >
+                  uc/
+                </span>
+                {u.sender.name}
+              </p>
+              <span
+                style={{
+                  display: "flex",
+                  justifyContent: "space-around",
+                  minWidth: 50,
+                }}
+              >
+                <IoClose
+                  onClick={() => denyFollowRequest(u.id)}
+                  style={{ color: "red" }}
+                />
+                <FaCheck
+                  onClick={() => acceptFollowRequest(u.id)}
+                  style={{ color: "green" }}
+                />
+              </span>
             </li>
           ))}
         </div>
       );
     } else {
-      <div>
-        {user.followers.map((u) => (
-          <li>
-            <p>Name: {u.name}</p>
-            <p>Email: {u.email}</p>
-          </li>
-        ))}
-      </div>;
+      return (
+        <div>
+          <h4>Followers</h4>
+          {user.followers.map((u) => (
+            <>
+              <li>
+                <p>
+                  <span
+                    style={{
+                      color: "oklch(0.5845 0.2024 35.53)",
+                    }}
+                  >
+                    uc/
+                  </span>
+                  {u.name}
+                </p>
+              </li>
+            </>
+          ))}
+        </div>
+      );
     }
   };
 
@@ -200,18 +271,17 @@ function Profile({
         {user.id == loggedInUser.id ? (
           <div className={profile.userContainer}>
             <label htmlFor="upload file">
-              {userImg.data != null ? (
-                <div
-                  className={profile.editImage}
-                  style={{
-                    backgroundImage: `url(${userImg.data.publicUrl})`,
-                  }}
-                >
-                  <FiEdit2 />
-                </div>
-              ) : (
-                <CgProfile className={profile.editImage} />
-              )}
+              <div
+                className={profile.editImage}
+                style={{
+                  backgroundImage:
+                    userImg.data != null
+                      ? `url(${userImg.data.publicUrl})`
+                      : "url(/assets/images/Pastedimage.png)",
+                }}
+              >
+                <FiEdit2 />
+              </div>
             </label>
             <input
               id="upload file"
@@ -247,7 +317,7 @@ function Profile({
                     backgroundImage: `url(${userImg.data.publicUrl})`,
                   }}
                 >
-                  <FiEdit2 />
+                  {user.id == loggedInUser.id && <FiEdit2 />}
                 </div>
               ) : (
                 <CgProfile className={profile.nonUserProfileImage} />
@@ -255,7 +325,12 @@ function Profile({
               <h3>uc/{user.name}</h3>
             </div>
             {!userFollowing() ? (
-              <button className={profile.followButton}>Follow</button>
+              <button
+                className={profile.followButton}
+                onClick={() => sendFollowRequest(user.email)}
+              >
+                Follow
+              </button>
             ) : (
               <button
                 className={profile.followButton}
@@ -307,7 +382,13 @@ function Profile({
           followingWithRequests(user)
         ) : selectedSection == "following" ? (
           user.following.map((u) => (
-            <li style={{ fontWeight: "bold" }}>
+            <li
+              style={{
+                fontWeight: "bold",
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
               <span
                 style={{
                   color: "oklch(0.5845 0.2024 35.53)",
@@ -316,7 +397,9 @@ function Profile({
                 uc/
               </span>
               {u.name}
-              {user.id == loggedInUser.id && <RiUserUnfollowFill />}
+              {user.id == loggedInUser.id && (
+                <RiUserUnfollowFill onClick={() => unfollowUser(u.id)} />
+              )}
             </li>
           ))
         ) : (
@@ -355,16 +438,28 @@ function Profile({
           <aside className={profile.following}>
             <h4>Following</h4>
             {user.following.map((u) => (
-              <li style={{ fontWeight: "bold" }}>
-                <span
-                  style={{
-                    color: "oklch(0.5845 0.2024 35.53)",
-                  }}
-                >
-                  uc/
+              <li
+                style={{
+                  fontWeight: "bold",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                <span>
+                  <span
+                    style={{
+                      color: "oklch(0.5845 0.2024 35.53)",
+                    }}
+                  >
+                    uc/
+                  </span>
+                  {u.name}
                 </span>
-                {u.name}
-                {user.id == loggedInUser.id && <RiUserUnfollowFill />}
+                {user.id == loggedInUser.id && (
+                  <RiUserUnfollowFill onClick={() => unfollowUser(u.id)} />
+                )}
               </li>
             ))}
           </aside>
@@ -411,21 +506,7 @@ function Profile({
                 ))}
           </section>
           <aside className={profile.followers}>
-            <h4>Followers</h4>
-            {user.followers.map((u) => (
-              <li style={{ fontWeight: "bold" }}>
-                <p>
-                  <span
-                    style={{
-                      color: "oklch(0.5845 0.2024 35.53)",
-                    }}
-                  >
-                    uc/
-                  </span>
-                  {u.name}
-                </p>
-              </li>
-            ))}
+            {followingWithRequests(user)}
           </aside>
         </div>
       )}

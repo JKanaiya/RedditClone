@@ -8,6 +8,7 @@ import { Link } from "react-router";
 import Validate from "../components/Validate.ts";
 // import GuestLogin from "./GuestLogin.tsx";
 import UserContext from "../UserContext.tsx";
+import GuestLogin from "./GuestLogin.tsx";
 
 export type Errors = {
   email: string;
@@ -156,7 +157,7 @@ const Login = () => {
             Sign-Up
           </Link>
         </div>
-        {/* <GuestLogin /> this is probably better done as one user acacount with a spectator tag, without the capability of craeting a post, or commenting on stuff */}
+        <GuestLogin />
       </div>
     </div>
   );
