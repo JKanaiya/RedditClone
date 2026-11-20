@@ -45,7 +45,7 @@
 }
 
 .image {
-  height: 400px;
+  min-height: 400px;
 }
 
 .h5 {

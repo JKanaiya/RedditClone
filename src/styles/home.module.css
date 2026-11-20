@@ -8,6 +8,19 @@
   min-height: 100dvh;
 }
 
+.focusSubSelect {
+  border-radius: 2px;
+  border: none;
+  composes: containerLow from "../colors.module.css";
+  composes: softWhite from "../colors.module.css";
+  padding: 1%;
+}
+
+select,
+::picker(select) {
+  appearance: base-select;
+}
+
 .container {
   display: flex;
   justify-content: space-around;

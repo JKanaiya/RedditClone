@@ -1,6 +1,6 @@
 .section {
-  min-width: 50%;
-  max-width: 60%;
+  min-width: 40%;
+  max-width: 40%;
   display: flex;
   max-height: 90dvh;
   overflow: scroll;

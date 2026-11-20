@@ -8,7 +8,7 @@ import { IoClose } from "react-icons/io5";
 import ApiCall from "../apiCalls";
 import { useForm } from "react-hook-form";
 import { mutate } from "swr";
-import { useState, type InputEventHandler } from "react";
+import { useRef, useState, type InputEventHandler } from "react";
 import { supabase } from "../supabase";
 import { SiEclipseide } from "react-icons/si";
 
@@ -23,9 +23,9 @@ function Focus({
 }) {
   const [file, setFile] = useState<null | File>(null);
   // TODO this is not doing, or being used for what it says it is
-  const [postImageUrl, setPostImageUrl] = useState<null | string>(null);
   const specEmail = localStorage.getItem("spec_email");
   const email = specEmail ? specEmail : localStorage.getItem("email");
+  const postImageRef = useRef<string | undefined>(undefined);
 
   const successNotify = (message: string) => {
     toast.success(message, {
@@ -55,13 +55,6 @@ function Focus({
     });
   };
 
-  const setPImgUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target);
-
-    setPostImageUrl(e.target.files[0]);
-    setFile(e.target.files[0]);
-  };
-
   const updatePost = async (formData: FormData) => {
     try {
       const response = await ApiCall.updatePost(
@@ -82,26 +75,20 @@ function Focus({
   };
 
   const createPost = async (formData: FormData) => {
-    const now = new Date();
-    const newPostImageUrl = now.toISOString();
-
-    const { data, error } = await supabase.storage
-      .from("UserData")
-      .upload(`${email}/post/${newPostImageUrl}`, file, {
-        contentType: "image/png",
-        cacheControl: "3600",
-      });
     try {
       const response = await ApiCall.postToSubreddit(
         formData.get("subreddits")?.toString(),
         formData.get("text")?.toString(),
         formData.get("title")?.toString(),
-        postImageUrl && `${email}/post/${newPostImageUrl}`,
+        postImageRef.current != null && postImageRef.current,
       );
+      console.log(response);
       if (response.status != 200) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       } else {
         successNotify("Created post successfully");
+        postImageRef.current = undefined;
+        toggleFocus({ active: false, post: null });
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
       }
     } catch (e) {
@@ -111,7 +98,7 @@ function Focus({
   };
 
   const updatePostImage = async (e) => {
-    if (editingPost?.postImageUrl) {
+    if (editingPost && editingPost?.postImageUrl) {
       await supabase.storage
         .from("UserData")
         .remove([editingPost.postImageUrl]);
@@ -127,8 +114,20 @@ function Focus({
         console.log("Err" + error);
       } else {
         successNotify("Updated post successfully");
-        setPostImageUrl(editingPost!.postImageUrl);
         mutate(import.meta.env.VITE_BACKEND_URL + "posts");
+      }
+    } else {
+      const now = new Date();
+      const newPostImageUrl = now.toISOString();
+      const { data, error } = await supabase.storage
+        .from("UserData")
+        .upload(`${email}/post/${newPostImageUrl}`, e.target.files[0], {
+          contentType: "image/png",
+          cacheControl: "3600",
+        });
+      postImageRef.current = `${email}/post/${newPostImageUrl}`;
+      if (error) {
+        console.log("Err" + error);
       }
     }
   };
@@ -227,33 +226,46 @@ function Focus({
         <form action={createPost}>
           <label>
             Title:
-            <input placeholder="Title" name="title" type="text" />
+            <input name="title" type="text" className={home.focusTitle} />
           </label>
           <label>
             Text:
-            <input placeholder="Text" name="text" type="text" />
+            <input
+              placeholder="Text"
+              name="text"
+              type="text"
+              className={home.focusText}
+            />
           </label>
           <label>
-            Subreddits:
-            <select name="subreddits">
+            Subreddit: <br />
+            <select name="subreddits" className={home.focusSubSelect}>
               {subreddits &&
                 subreddits.map((sred) => (
-                  <option value={sred.name}> {sred.name} </option>
+                  <option value={sred.name}>
+                    <p style={{ color: "oklch(0.5845 0.2024 35.53)" }}>rc</p>/
+                    {sred.name}
+                  </option>
                 ))}
             </select>
           </label>
-
-          <label htmlFor="upload file">
+          <label
+            htmlFor="upload file"
+            style={{
+              minHeight: "30%",
+            }}
+          >
+            <p> Post Image: </p>
             <div
-              // this section needs to wait for the existence of an actual profile image
               style={{
-                backgroundImage:
-                  postImg.data != null
-                    ? `url(${postImg.data.publicUrl})`
-                    : "url('/assets/images/generic_profile.png')",
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "oklch(0.3109 0.0131 229.38)",
+                height: "80%",
+                borderRadius: "10px",
+                justifyContent: "center",
               }}
             >
-              {/* <img src={userImg.data.publicUrl} style={{ borderRadius: "50%" }} /> */}
               <IoIosAddCircleOutline />
             </div>
           </label>
@@ -261,16 +273,13 @@ function Focus({
             id="upload file"
             type="file"
             name="uploaded_file"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPImgUrl(e)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              updatePostImage(e)
+            }
             placeholder=""
             style={{ display: "none" }}
           />
-          <button
-            type="submit"
-            onClick={() => toggleFocus({ active: false, post: null })}
-          >
-            Submit
-          </button>
+          <button type="submit">Submit</button>
         </form>
         <ToastContainer />
       </div>

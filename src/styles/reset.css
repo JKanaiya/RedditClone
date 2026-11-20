@@ -45,6 +45,14 @@ h6 {
   overflow-wrap: break-word;
 }
 
+select, ::picker(select) {
+  appearance: base-select
+}
+
+select::picker-icon {
+  display: none
+}
+
 #root,
 #__next {
   isolation: isolate;

@@ -66,7 +66,9 @@ function Users({ setSelectedUser }: { setSelectedUser: (user: User) => {} }) {
               <p>{user.name}</p>
             </li>
           ))}
-      <hr style={{ height: 2, border: 0, background: "#333" }} />
+      <hr
+        style={{ height: 2, border: 0, background: "#333", margin: "10px 0" }}
+      />
       <h3>Users</h3>
       {users &&
         users.map((u: User) => (

@@ -115,17 +115,15 @@ function Home() {
   if (error) nav("/error");
   return (
     <div className={home.page}>
-      <Nav searchPosts={searchPosts} toggleSideBar={toggleSideBar} />
+      <Nav
+        searchPosts={searchPosts}
+        toggleSideBar={toggleSideBar}
+        toggleFocus={toggleFocus}
+      />
       <section
         className={home.container}
         style={{ filter: focus.active || sideBarOpen ? "blur(5px)" : "none" }}
       >
-        {/* <div> */}
-        {/*   <IoIosAddCircleOutline */}
-        {/*     onClick={() => toggleFocus({ active: true, post: null })} */}
-        {/*   /> */}
-        {/* </div> */}
-
         {window.innerWidth >= 868 && !selectedUser && (
           <aside className={home.subreddits}>
             <h3>Subreddits</h3>
@@ -166,7 +164,10 @@ function Home() {
         )}
       </section>
       {window.innerWidth < 868 && sideBarOpen && (
-        <aside className={home.sidebar} style={{ minWidth: "50dvw" }}>
+        <aside
+          className={home.sidebar}
+          style={{ minWidth: "50dvw", overflow: "scroll" }}
+        >
           <IoClose
             onClick={() => toggleSideBar()}
             className={home.sidebarClose}
@@ -180,13 +181,19 @@ function Home() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  overflow: "scroll",
                 }}
               >
                 <p>rc/{subreddit.name}</p>
               </li>
             ))}
-          <hr style={{ height: 2, border: 0, background: "#333" }} />
+          <hr
+            style={{
+              height: 2,
+              border: 0,
+              background: "#333",
+              margin: "10px 0",
+            }}
+          />
           <Users setSelectedUser={setSelectedUser} />
         </aside>
       )}

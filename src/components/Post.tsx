@@ -148,7 +148,6 @@ function PostComponent({ post }: { post: Post }) {
     // }
   };
   socket.on("updated-comments", () => {
-    console.log("?");
     try {
       mutate(import.meta.env.VITE_BACKEND_URL + "comments");
     } catch (e) {
@@ -213,13 +212,7 @@ function PostComponent({ post }: { post: Post }) {
         {selectedPost && <p>{post.text}</p>}
         {/* {post.user.id == user.id && <MdOutlineEdit />} */}
         {postImg && (
-          <div
-            className={postStyle.image}
-            style={{
-              backgroundImage: `url(${postImg.data.publicUrl})`,
-              backgroundSize: "cover",
-            }}
-          ></div>
+          <img src={postImg.data.publicUrl} style={{ borderRadius: 10 }} />
         )}
 
         <div className={postStyle.metaData}>
